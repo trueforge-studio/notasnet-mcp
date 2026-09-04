@@ -77,7 +77,9 @@
   "getModifySchema": {
     "fields": [
       { "name": "ApellidoPaterno", "title": "Apellido Paterno", "type": "text", "grupo": "Personales", "max": 50, "reference": null },
-      { "name": "Alergias", "title": "Alergias", "type": "list", "grupo": "Medicos", "max": 200, "reference": "_alergias" }
+      { "name": "FechaNacimiento", "title": "Fecha de Nacimiento", "type": "datetime", "grupo": "Personales", "max": null, "reference": null },
+      { "name": "Alergias", "title": "Alergias", "type": "list", "grupo": "Medicos", "max": 200, "reference": [{ "table": "_alergias", "key": "idAlergia" }] },
+      { "name": "Enfermedades", "title": "Enfermedades", "type": "list", "grupo": "Medicos", "max": 200, "reference": [{ "table": "_enfermedades", "key": "idEnfermedad" }] }
     ]
   },
   "getModifyInfo": {

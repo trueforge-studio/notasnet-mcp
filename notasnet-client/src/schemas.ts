@@ -612,14 +612,19 @@ export const certificateListItemSchema = z
   .passthrough();
 export const certificateListSchema = z.array(certificateListItemSchema);
 
+const modifySchemaFieldReferenceSchema = z.object({ table: z.string(), key: z.string() }).passthrough();
+
 const modifySchemaFieldSchema = z
   .object({
     name: z.string(),
     title: z.string(),
     type: z.string(),
     grupo: z.string(),
-    max: z.number(),
-    reference: nullableString,
+    // null para campos no-texto donde el largo máximo no aplica (ej. FechaNacimiento, tipo "datetime").
+    max: z.number().nullable(),
+    // Array de catálogos externos referenciados (ej. Alergias -> [{ table: "_alergias", key: "idAlergia" }]),
+    // no un string como se asumió inicialmente.
+    reference: z.array(modifySchemaFieldReferenceSchema).nullable(),
   })
   .passthrough();
 export const modifySchemaResponseSchema = z.object({ fields: z.array(modifySchemaFieldSchema) }).passthrough();

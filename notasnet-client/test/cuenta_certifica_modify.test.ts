@@ -64,7 +64,13 @@ describe("NotasnetClient — cuenta / certificados / modify", () => {
     const result = await client.getModifySchema("alu");
 
     expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/modify/schema?tipo=alu`, expect.anything());
-    expect(result.fields).toHaveLength(2);
+    expect(result.fields).toHaveLength(4);
+    // max null para campos no-texto donde el largo máximo no aplica (ej. datetime).
+    expect(result.fields.find((f) => f.name === "FechaNacimiento")?.max).toBeNull();
+    // reference es un array de catálogos externos, no un string.
+    expect(result.fields.find((f) => f.name === "Alergias")?.reference).toEqual([
+      { table: "_alergias", key: "idAlergia" },
+    ]);
   });
 
   it("getModifyInfo(tipo, id) calls GET /api/modify/info with medical fields nullable", async () => {

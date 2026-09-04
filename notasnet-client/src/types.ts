@@ -795,15 +795,22 @@ export interface CertificateListItem {
   CertFirma: CertificateSigned[];
 }
 
+/** Catálogo externo referenciado por un campo de `ModifySchemaField.reference` (ver `modify/reference`). */
+export interface ModifySchemaFieldReference {
+  table: string;
+  key: string;
+}
+
 /** Un campo del esquema dinámico de `GET /modify/schema?tipo=`. */
 export interface ModifySchemaField {
   name: string;
   title: string;
   type: string;
   grupo: string;
-  max: number;
-  /** Nombre de la tabla de referencia (ver `modify/reference`) cuando el campo es una lista, si no null. */
-  reference: string | null;
+  /** null para campos no-texto donde el largo máximo no aplica (ej. FechaNacimiento, tipo "datetime"). */
+  max: number | null;
+  /** Catálogos externos referenciados (ej. Alergias -> [{ table: "_alergias", key: "idAlergia" }]), si no null. */
+  reference: ModifySchemaFieldReference[] | null;
 }
 
 /** Respuesta de `GET /modify/schema?tipo=`. */
