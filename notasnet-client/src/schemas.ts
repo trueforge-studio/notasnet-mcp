@@ -103,26 +103,60 @@ export const guardianPermissionsSchema = z
   })
   .passthrough();
 
-export const studentInfoSummarySchema = z
-  .object({
-    idAlumno: z.number(),
-    Curso: z.number(),
-    Inicio: z.string(),
-    Termino: z.string(),
-    Dia: z.number(),
+// `GET /alumnos/{id}/info?op=...` arma la respuesta incrementalmente según los módulos
+// pedidos: cada uno aporta su propio subconjunto de campos (ver `StudentInfoModule` en
+// types.ts para el mapeo confirmado). Por eso no hay un único schema rígido: `getStudentInfo`
+// arma el schema final combinando solo los pedazos de los módulos efectivamente pedidos, así
+// valida exactamente lo que el backend promete para esa llamada puntual.
+const studentInfoBaseSchema = z.object({ idAlumno: z.number(), Curso: z.number() });
+
+const studentInfoModuleSchemas = {
+  nt: z.object({
     Rojos: z.number(),
+    Prom0: z.number(),
+    Prom1: z.number(),
+    Prom2: z.number(),
+    Prom3: z.number(),
     NotaFinal: z.string(),
     PCurso: z.string(),
+  }),
+  as: z.object({
+    AsiPor0: z.number(),
+    AsiPor1: z.number(),
+    AsiPor2: z.number(),
     AsiPorFinal: z.number(),
+    Inasi0: z.number(),
+    Inasi1: z.number(),
+    Inasi2: z.number(),
     InasiFinal: z.number(),
     Atrasos: z.number(),
+  }),
+  ho: z.object({ Inicio: z.string(), Termino: z.string(), Dia: z.number() }),
+  pe: z.object({
     Anno: z.number(),
     Rut: z.string(),
     NombreApellido: z.string(),
     NCurso: z.string(),
     NombreApellidos: z.string(),
-  })
-  .passthrough();
+  }),
+  // No se confirmaron campos propios para "pre" (ver StudentInfoModule) — no aporta nada al
+  // schema combinado, pero se deja listado para que quede explícito que se consideró.
+  pre: z.object({}),
+} as const;
+
+/**
+ * Arma el schema de `getStudentInfo` combinando el base (`idAlumno`/`Curso`, siempre presentes)
+ * con solo los pedazos de los módulos pedidos en `modules` — así no exige campos de módulos
+ * que ni se solicitaron (esa era la causa del bug: un schema único y rígido esperaba todos los
+ * campos vistos al pedir los 5 módulos juntos, y reventaba al pedir un subconjunto).
+ */
+export function buildStudentInfoSchema(modules: readonly string[]): z.ZodTypeAny {
+  const merged = modules.reduce<z.AnyZodObject>((schema, moduleKey) => {
+    const moduleSchema = studentInfoModuleSchemas[moduleKey as keyof typeof studentInfoModuleSchemas];
+    return moduleSchema ? schema.merge(moduleSchema) : schema;
+  }, studentInfoBaseSchema);
+  return merged.passthrough();
+}
 
 // --- Agenda ------------------------------------------------------------------
 

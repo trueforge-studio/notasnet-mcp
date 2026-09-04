@@ -78,6 +78,18 @@ describe("NotasnetClient — alumnos", () => {
     expect(result.idAlumno).toBe(9000001);
   });
 
+  it("getStudentInfo(studentId, ['nt']) validates a response with only the notas fields — confirmed in producción que op filtra de verdad", async () => {
+    const fetchMock = jsonFetch(fixtures.getStudentInfoNotasOnly);
+    const client = new NotasnetClient({ baseUrl: BASE_URL, fetch: fetchMock });
+
+    const result = await client.getStudentInfo(9000001, ["nt"]);
+
+    expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/alumnos/9000001/info?op=nt`, expect.anything());
+    expect(result.NotaFinal).toBe("6.5");
+    // Campos de otros módulos no pedidos (ho, as, pe) no están presentes ni exigidos.
+    expect(result.Inicio).toBeUndefined();
+  });
+
   it("invokes getAuthHeaders on every call and forwards the resulting headers", async () => {
     const fetchMock = jsonFetch(fixtures.listStudents);
     const client = new NotasnetClient({

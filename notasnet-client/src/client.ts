@@ -136,7 +136,7 @@ import {
   signInResponseSchema,
   scheduleListSchema,
   studentGuardianListSchema,
-  studentInfoSummarySchema,
+  buildStudentInfoSchema,
   studentListSchema,
   studentSubjectListSchema,
   studentSummarySchema,
@@ -326,10 +326,16 @@ export class NotasnetClient {
    * `GET /alumnos/{id}/info?op=...` — resumen ampliable por módulo.
    * `modules` se une con "|" al construir el query param `op`, tal como lo hace el frontend real
    * (visto en el HAR como `op=nt|as|pe|ho|pre`).
+   *
+   * `op` sí filtra de verdad en el backend: cada módulo aporta su propio subconjunto de campos
+   * (ver `StudentInfoModule` en types.ts para el mapeo confirmado en producción). Por eso el
+   * schema de validación se arma dinámicamente según los `modules` pedidos en esta llamada
+   * puntual (`buildStudentInfoSchema`), en vez de exigir siempre todos los campos posibles —
+   * eso reventaba al pedir un subconjunto de módulos (ver README, incertidumbres).
    */
   async getStudentInfo(studentId: number, modules: StudentInfoModule[]): Promise<StudentInfoSummary> {
     const url = this.buildUrl(`/alumnos/${studentId}/info`, { op: modules.join("|") });
-    return this.request("GET", url, studentInfoSummarySchema);
+    return this.request("GET", url, buildStudentInfoSchema(modules));
   }
 
   // =======================================================================

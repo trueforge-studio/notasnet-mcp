@@ -124,6 +124,17 @@
     "infpar": true,
     "inflib": false
   },
+  "getStudentInfoNotasOnly": {
+    "idAlumno": 9000001,
+    "Curso": 100001,
+    "Rojos": 0,
+    "Prom0": 6.5,
+    "Prom1": 6.4,
+    "Prom2": 6.6,
+    "Prom3": 0,
+    "NotaFinal": "6.5",
+    "PCurso": "6.30"
+  },
   "getStudentInfo": {
     "idAlumno": 9000001,
     "Curso": 100001,

@@ -70,7 +70,7 @@ método y en la tabla de abajo.
 | `getStudentSubjects(studentId)` | `GET /alumno/{id}/asignas` | `id` en la ruta |
 | `getStudentGuardians(studentId)` | `GET /alumno/{id}/padres` | `id` en la ruta |
 | `getGuardianPermissions()` | `GET /alumno/permisos` | — (aplica al apoderado autenticado) |
-| `getStudentInfo(studentId, modules)` | `GET /alumnos/{id}/info?op=...` | `id` en la ruta; `modules` (`'nt'\|'as'\|'pe'\|'ho'\|'pre'`) se unen con `\|` en `op` |
+| `getStudentInfo(studentId, modules)` | `GET /alumnos/{id}/info?op=...` | `id` en la ruta; `modules` (`'nt'\|'as'\|'pe'\|'ho'\|'pre'`) se unen con `\|` en `op` — cada módulo filtra campos de verdad, ver incertidumbre #6 |
 | `getAgendaByDate(date)` | `GET /agenda/{fecha}` | fecha en formato `YYYY-MM-DD` |
 | `getAgendaEvents(range)` | `GET /agenda/eventos?fec1=&fec2=&clases=` | forma de respuesta **distinta** a `getAgendaByDate` (ver tipos `AgendaRangeEvent` vs `AgendaDayEvent`) |
 | `getAgendaEventDetail(eventId)` | `GET /agenda/evento/{id}` | — |
@@ -292,7 +292,27 @@ periodo distinto al vigente. `getGrades(studentId, periodId?)` deja el parámetr
 preparado en la firma pero **sin usarlo** — no se envía ningún query param adicional hasta que
 se confirme el nombre real.
 
-### 6. Otros campos/comportamientos marcados como no confirmados en el código
+### 6. Mapeo de módulos de `getStudentInfo` — confirmado en producción
+
+`GET /alumnos/{id}/info?op=...` sí filtra de verdad según los módulos pedidos en `op` (antes se
+asumía, sin evidencia directa, que el backend siempre devolvía todos los campos posibles). Se
+confirmó pidiendo cada módulo por separado contra el backend real — ver `StudentInfoModule` en
+`src/types.ts` para el mapeo completo módulo→campos. Dos hallazgos no obvios:
+
+- `as` NO es "asignaturas" — es asistencia (`AsiPor0-2`, `AsiPorFinal`, `Inasi0-2`,
+  `InasiFinal`, `Atrasos`). Nombre engañoso a tener en cuenta al usar la librería.
+- `pe` ("periodo") aporta los datos base del alumno/curso (`Anno`, `Rut`, `NombreApellido`,
+  `NCurso`, `NombreApellidos`), no algo relacionado a periodos de evaluación.
+- `pre` (prematrícula) no mostró aportar campos propios, pero el único caso probado fue un
+  alumno ya matriculado (donde prematrícula no aplica) — no está descartado que aporte campos
+  para un alumno efectivamente en proceso de prematrícula.
+
+`getStudentInfo` arma el schema de validación dinámicamente según los `modules` pedidos en cada
+llamada (`buildStudentInfoSchema` en `src/schemas.ts`), en vez de exigir siempre todos los
+campos posibles — eso último causaba que pedir un subconjunto de módulos (ej. solo `["nt"]`)
+reventara la validación al no traer campos de módulos ni pedidos.
+
+### 7. Otros campos/comportamientos marcados como no confirmados en el código
 
 Buscar el string `no confirmado` en `src/types.ts` y `src/attachments.ts` para el detalle
 completo. En particular:

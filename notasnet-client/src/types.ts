@@ -173,19 +173,32 @@ export interface GuardianPermissions {
 }
 
 /** Módulos que se pueden pedir con `getStudentInfo` (parámetro `op`, unidos con "|"). */
+/**
+ * Módulos de `GET /alumnos/{id}/info?op=...`. Confirmado en producción (probando cada módulo
+ * por separado) que `op` sí filtra de verdad: cada módulo aporta un subconjunto fijo y propio
+ * de campos, en vez de que el backend siempre devuelva todo. `idAlumno`/`Curso` vienen siempre,
+ * sin importar el módulo. Mapeo confirmado:
+ *
+ * - `nt` (notas): `Rojos`, `Prom0-3`, `NotaFinal`, `PCurso`.
+ * - `as` (asistencia — OJO: nombre engañoso, NO son "asignaturas"): `AsiPor0-2`, `AsiPorFinal`,
+ *   `Inasi0-2`, `InasiFinal`, `Atrasos`.
+ * - `ho` (horario): `Inicio`, `Termino`, `Dia`.
+ * - `pe` (periodo — datos base del alumno/curso, pese al nombre): `Anno`, `Rut`,
+ *   `NombreApellido`, `NCurso`, `NombreApellidos`.
+ * - `pre` (prematrícula): no se confirmaron campos adicionales — el único caso probado fue un
+ *   alumno ya matriculado (donde prematrícula no aplica), así que no está descartado que aporte
+ *   campos propios para un alumno efectivamente en proceso de prematrícula.
+ */
 export type StudentInfoModule = "nt" | "as" | "pe" | "ho" | "pre";
 
-/**
- * Respuesta de `GET /alumnos/{id}/info?op=...`. Es un resumen "aplanado" con datos de
- * notas, horario y asistencia mezclados en un solo objeto (independiente de qué módulos
- * se pidieron en `op` — el HAR solo mostró llamadas pidiendo todos los módulos a la vez).
- */
-export interface StudentInfoSummary {
+/** Campos que siempre vienen en `GET /alumnos/{id}/info`, sin importar `modules`. */
+export interface StudentInfoBase {
   idAlumno: number;
   Curso: number;
-  Inicio: string;
-  Termino: string;
-  Dia: number;
+}
+
+/** Campos que aporta el módulo `nt` (notas). */
+export interface StudentInfoNotas {
   Rojos: number;
   Prom0: number;
   Prom1: number;
@@ -193,6 +206,10 @@ export interface StudentInfoSummary {
   Prom3: number;
   NotaFinal: string;
   PCurso: string;
+}
+
+/** Campos que aporta el módulo `as` (asistencia — no "asignaturas", ver `StudentInfoModule`). */
+export interface StudentInfoAsistencia {
   AsiPor0: number;
   AsiPor1: number;
   AsiPor2: number;
@@ -202,12 +219,39 @@ export interface StudentInfoSummary {
   Inasi2: number;
   InasiFinal: number;
   Atrasos: number;
+}
+
+/** Campos que aporta el módulo `ho` (horario). */
+export interface StudentInfoHorario {
+  Inicio: string;
+  Termino: string;
+  Dia: number;
+}
+
+/** Campos que aporta el módulo `pe` (periodo — datos base del alumno/curso). */
+export interface StudentInfoPeriodo {
   Anno: number;
   Rut: RutString;
   NombreApellido: string;
   NCurso: string;
   NombreApellidos: string;
 }
+
+/**
+ * Respuesta de `GET /alumnos/{id}/info?op=...`. Cada grupo de campos es opcional porque el
+ * backend solo lo incluye si el módulo correspondiente fue pedido en `modules` — ver
+ * `StudentInfoModule` para el mapeo confirmado módulo→campos. `getStudentInfo` valida en
+ * runtime que los campos del/de los módulo(s) efectivamente pedidos sí estén presentes (ver
+ * `src/schemas.ts`); este tipo es deliberadamente más permisivo (todo opcional salvo la base)
+ * porque TypeScript no puede inferir el subconjunto exacto a partir de un `modules: string[]`
+ * genérico sin tipos condicionales que complicarían la API pública sin necesidad real.
+ */
+export interface StudentInfoSummary
+  extends StudentInfoBase,
+    Partial<StudentInfoNotas>,
+    Partial<StudentInfoAsistencia>,
+    Partial<StudentInfoHorario>,
+    Partial<StudentInfoPeriodo> {}
 
 // ---------------------------------------------------------------------------
 // Agenda / calendario
