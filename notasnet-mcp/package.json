@@ -1,0 +1,39 @@
+{
+  "name": "notasnet-mcp",
+  "version": "0.1.0",
+  "description": "Local MCP (Model Context Protocol) server that wraps notasnet-client and exposes the Notasnet school portal API as MCP tools over stdio.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "notasnet-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "notasnet",
+    "syscol",
+    "mcp",
+    "model-context-protocol"
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "notasnet-client": "file:../notasnet-client",
+    "zod": "^3.24.1"
+  },
+  "packageManager": "npm@11.3.0"
+}
