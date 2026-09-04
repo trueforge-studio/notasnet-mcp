@@ -187,7 +187,8 @@ export const agendaRangeEventSchema = z
     Sujeto: z.string(),
     AccTipo: z.string(),
     AccNombre: z.string(),
-    curso: z.string(),
+    // null cuando AccTipo es "Colegio" (evento/comunicado a nivel de todo el colegio, sin curso asociado).
+    curso: nullableString,
     TipoNombre: z.string(),
   })
   .passthrough();

@@ -311,8 +311,11 @@ export interface AgendaRangeEvent {
   Sujeto: string;
   AccTipo: string;
   AccNombre: string;
-  /** Nombre corto del curso, ej. "1EBA" (formato de ejemplo). */
-  curso: string;
+  /**
+   * Nombre corto del curso, ej. "1EBA" (formato de ejemplo). Null cuando AccTipo es
+   * "Colegio" (evento/comunicado a nivel de todo el colegio, sin curso asociado).
+   */
+  curso: string | null;
   TipoNombre: string;
 }
 
