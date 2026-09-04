@@ -83,6 +83,15 @@
       "Color": 2345678,
       "PNom": "Profesor Ejemplo Dos",
       "PRut": "13.345.678-0"
+    },
+    {
+      "Pos": 500,
+      "Tipo": "acle",
+      "Nom": "TAEKWONDO",
+      "Ico": null,
+      "Color": 3456789,
+      "PNom": "Profesor Ejemplo Tres",
+      "PRut": "14.345.678-1"
     }
   ],
   "getStudentGuardians": [
@@ -100,6 +109,14 @@
       "Rut": "22.222.222-2",
       "Email": "correo2@ejemplo.cl",
       "Movil": "+56900000001",
+      "Relacion": "Madre"
+    },
+    {
+      "Id": null,
+      "Nom": null,
+      "Rut": null,
+      "Email": null,
+      "Movil": null,
       "Relacion": "Madre"
     }
   ],

@@ -76,7 +76,7 @@ export const studentSubjectSchema = z
     Pos: nullableNumber,
     Tipo: z.string(),
     Nom: z.string(),
-    Ico: z.string(),
+    Ico: nullableString,
     Color: z.number(),
     PNom: z.string(),
     PRut: z.string(),
@@ -86,11 +86,11 @@ export const studentSubjectListSchema = z.array(studentSubjectSchema);
 
 export const studentGuardianSchema = z
   .object({
-    Id: z.number(),
-    Nom: z.string(),
-    Rut: z.string(),
-    Email: z.string(),
-    Movil: z.string(),
+    Id: nullableNumber,
+    Nom: nullableString,
+    Rut: nullableString,
+    Email: nullableString,
+    Movil: nullableString,
     Relacion: z.string(),
   })
   .passthrough();

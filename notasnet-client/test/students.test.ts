@@ -34,7 +34,10 @@ describe("NotasnetClient — alumnos", () => {
     const result = await client.getStudentSubjects(9000001);
 
     expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/alumno/9000001/asignas`, expect.anything());
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
+    // Ico viene null para academias extraprogramáticas (Tipo: "acle") — confirmado en producción.
+    expect(result[2]?.Tipo).toBe("acle");
+    expect(result[2]?.Ico).toBeNull();
   });
 
   it("getStudentGuardians(studentId) calls GET /api/alumno/{id}/padres", async () => {
@@ -45,6 +48,11 @@ describe("NotasnetClient — alumnos", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/alumno/9000001/padres`, expect.anything());
     expect(result[0]?.Relacion).toBe("Padre");
+    // Un "slot" de apoderado sin ficha completa cargada trae todo null salvo Relacion —
+    // confirmado en producción.
+    expect(result[2]?.Relacion).toBe("Madre");
+    expect(result[2]?.Id).toBeNull();
+    expect(result[2]?.Nom).toBeNull();
   });
 
   it("getGuardianPermissions() calls GET /api/alumno/permisos", async () => {

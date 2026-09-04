@@ -128,11 +128,19 @@ export interface StudentSummary {
 
 /** Un elemento de `GET /alumno/{id}/asignas`. */
 export interface StudentSubject {
-  /** no confirmado con datos reales, solo se vio null en el HAR */
+  /**
+   * Confirmado en producción: fijo en `500` para `Tipo: "acle"` (academias extraprogramáticas
+   * — deportes, talleres), incremental para asignaturas regulares (`Tipo: "asig"`).
+   */
   Pos: number | null;
   Tipo: string;
   Nom: string;
-  Ico: string;
+  /**
+   * Puede venir `null` — confirmado en producción para todos los ítems con `Tipo: "acle"`
+   * (academias extraprogramáticas, ej. Taekwondo/Outdoor/Tenis observados). Las asignaturas
+   * regulares (`Tipo: "asig"`) siempre traen un ícono.
+   */
+  Ico: string | null;
   Color: number;
   /** Nombre del profesor a cargo. */
   PNom: string;
@@ -140,13 +148,19 @@ export interface StudentSubject {
   PRut: RutString;
 }
 
-/** Un elemento de `GET /alumno/{id}/padres`. */
+/**
+ * Un elemento de `GET /alumno/{id}/padres`.
+ *
+ * Todos los campos salvo `Relacion` pueden venir `null` juntos: confirmado en producción para
+ * un "slot" de apoderado (ej. `Relacion: "Madre"`) sin ficha completa cargada por el colegio —
+ * el registro existe (con su relación familiar) pero sin datos personales asociados todavía.
+ */
 export interface StudentGuardian {
-  Id: number;
-  Nom: string;
-  Rut: RutString;
-  Email: string;
-  Movil: string;
+  Id: number | null;
+  Nom: string | null;
+  Rut: RutString | null;
+  Email: string | null;
+  Movil: string | null;
   Relacion: string;
 }
 
