@@ -25,10 +25,25 @@
       "Detalle": null,
       "TipoCodigo": "cla",
       "TipoNombre": "Clase",
-      "Sujeto": "cla:1000002",
+      "Sujeto": "Clase:1000002",
       "Online": false,
       "Link": null,
       "Files": 1
+    },
+    {
+      "Color": 16777211,
+      "Icono": "brain",
+      "SubTitle": "Curso de ejemplo",
+      "FechaInicio": "1900-01-01T08:00:00",
+      "FechaTermino": "1900-01-01T08:45:00",
+      "Titulo": "ORIENTACION",
+      "Detalle": null,
+      "TipoCodigo": "cla",
+      "TipoNombre": "Clase",
+      "Sujeto": null,
+      "Online": null,
+      "Link": null,
+      "Files": null
     }
   ],
   "getAgendaEvents": [

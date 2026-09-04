@@ -215,8 +215,20 @@ export interface AgendaDayEvent {
   Detalle: string | null;
   TipoCodigo: TipoCodigo;
   TipoNombre: string;
-  /** Identificador tipo "ag:<id>" que referencia el registro (ver también notificaciones). */
-  Sujeto: string;
+  /**
+   * Identificador que referencia el registro (ver también notificaciones), con un prefijo que
+   * varía según `TipoCodigo` — ej. `"ag:<id>"` para eventos, `"Clase:<id>"` para clases
+   * (`TipoCodigo: "cla"`).
+   *
+   * Puede venir `null`: confirmado en producción para un bloque de "ORIENTACIÓN" (`TipoCodigo:
+   * "cla"`) que aparentemente no tenía una instancia de clase materializada en el backend —
+   * en ese caso también vino con `FechaInicio`/`FechaTermino` en año 1900 (`DateTime.MinValue`
+   * típico de .NET) aunque con la hora real correcta, en vez de con la fecha real del día
+   * consultado. No se detectó ningún campo adicional que marque explícitamente este caso
+   * (ej. "cancelada" o "sin agendar") — el llamador que necesite distinguirlo debe chequear
+   * `Sujeto === null` y/o que `FechaInicio` empiece con `"1900-"`.
+   */
+  Sujeto: string | null;
   /** no confirmado con datos reales: solo se vieron `null`/`false` en el HAR */
   Online: boolean | null;
   /** no confirmado con datos reales, solo se vio null en el HAR */

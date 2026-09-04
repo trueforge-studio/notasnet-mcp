@@ -13,8 +13,13 @@ describe("NotasnetClient — agenda", () => {
     const result = await client.getAgendaByDate("2026-08-28");
 
     expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/agenda/2026-08-28`, expect.anything());
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
     expect(result[0]?.TipoCodigo).toBe("EVE");
+    // Sujeto puede venir null junto con FechaInicio/FechaTermino en año 1900 (DateTime.MinValue
+    // típico de .NET) para una clase sin instancia materializada en el backend — confirmado en
+    // producción para un bloque de "Orientación" que no tenía Sujeto asignado ese día.
+    expect(result[2]?.Sujeto).toBeNull();
+    expect(result[2]?.FechaInicio.startsWith("1900-")).toBe(true);
   });
 
   it("getAgendaEvents(range) maps to fec1/fec2/clases and returns the (different) range shape", async () => {

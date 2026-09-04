@@ -137,7 +137,7 @@ export const agendaDayEventSchema = z
     Detalle: nullableString,
     TipoCodigo: z.string(),
     TipoNombre: z.string(),
-    Sujeto: z.string(),
+    Sujeto: nullableString,
   })
   .passthrough();
 export const agendaDayEventListSchema = z.array(agendaDayEventSchema);
