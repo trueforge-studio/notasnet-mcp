@@ -435,13 +435,14 @@ export class NotasnetClient {
    * Confirmado por el HAR (a diferencia de lo asumido inicialmente en el prompt de encargo):
    * el body es `multipart/form-data` con un único campo `suj` cuyo valor es el `Sujeto` del
    * registro referenciado, con el formato "<prefijo>:<id>" (ej. "ag:1234567" para un evento
-   * de agenda — el prefijo visto en las 4 llamadas capturadas fue siempre "ag"). Por eso este
-   * método recibe `subject` como el valor completo de `Sujeto`/`SujetoCodigo:Id`, no solo un
-   * id numérico — mapea 1:1 al campo `Sujeto` que traen `AgendaDayEvent`, `LatestNotification`,
-   * `CommunicationNotificationDetail`, etc.
+   * de agenda). Por eso este método recibe `subject` como el valor completo de
+   * `Sujeto`/`SujetoCodigo:Id`, no solo un id numérico — mapea 1:1 al campo `Sujeto` que traen
+   * `AgendaDayEvent`, `LatestNotification`, `CommunicationNotificationDetail`, etc.
    *
-   * No se confirmó si `suj` acepta otros prefijos además de "ag:" (ej. notificaciones de
-   * comunicación) — se recomienda probarlo contra el backend real antes de asumirlo.
+   * Prefijos confirmados contra el backend real: "ag:" (evento de agenda, visto en el HAR
+   * original) y "nt:" (calificación, ej. "nt:73510984|6" — probado manualmente: `Visto` cambió
+   * y la notificación dejó de aparecer en `getLatestNotifications`). Otros prefijos (ej.
+   * notificaciones de comunicación) no se han probado.
    */
   async markNotificationSeen(subject: string): Promise<{ ok: boolean }> {
     const url = this.buildUrl("/notifica/visto");

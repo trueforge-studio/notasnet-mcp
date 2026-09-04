@@ -28,7 +28,8 @@ export function registerNotificaTools(server: McpServer): void {
       description:
         'Marca una notificación como vista (POST /notifica/visto). "subject" es el valor completo del campo ' +
         'Sujeto/SujetoCodigo:Id del registro (formato "<prefijo>:<id>", ej. "ag:1234567" para un evento de ' +
-        'agenda). Solo se confirmó el prefijo "ag:" contra el backend real.',
+        'agenda, "nt:73510984|6" para una calificación). Confirmado contra el backend real para los prefijos ' +
+        '"ag:" y "nt:".',
       inputSchema: { subject: z.string() },
     },
     async ({ subject }) => runTool(true, () => client.markNotificationSeen(subject)),
