@@ -460,7 +460,8 @@ const tardinessItemSchema = z
 export const tardinessResponseSchema = z
   .object({
     Fecha: z.string(),
-    Items: z.array(tardinessItemSchema),
+    // null cuando no hay atrasos registrados para esa combinación alumno/asignatura.
+    Items: z.array(tardinessItemSchema).nullable(),
   })
   .passthrough();
 

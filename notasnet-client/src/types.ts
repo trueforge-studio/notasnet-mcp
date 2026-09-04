@@ -624,7 +624,8 @@ export interface TardinessItem {
 /** Respuesta de `GET /asiste/atrasos?alu=&asi=`. */
 export interface TardinessResponse {
   Fecha: IsoDateTimeString;
-  Items: TardinessItem[];
+  /** null cuando no hay atrasos registrados para esa combinación alumno/asignatura. */
+  Items: TardinessItem[] | null;
 }
 
 // ---------------------------------------------------------------------------
