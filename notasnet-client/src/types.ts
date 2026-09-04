@@ -362,8 +362,10 @@ export interface LatestNotification {
   /** no confirmado con datos reales: forma exacta cuando no es null */
   Alu: string | null;
   idNotifica: number;
-  Titulo: string;
-  Detalle: string;
+  /** Puede venir null junto con Alu/Alumno null (visto en un evento de agenda sin alumno asociado). */
+  Titulo: string | null;
+  /** Puede venir null junto con Alu/Alumno null (visto en un evento de agenda sin alumno asociado). */
+  Detalle: string | null;
   Fecha: IsoDateTimeString;
   TipoCodigo: TipoCodigo;
   TipoNombre: string;
@@ -441,11 +443,14 @@ export interface SubjectGrades {
   PRut: RutString;
   SubColor: number;
   SubIcono: string;
-  PCurso: string;
-  Nota0: string;
+  /** Null visto para una asignatura sin notas registradas aún (ej. "Orientación"). */
+  PCurso: string | null;
+  /** Null visto para una asignatura sin notas registradas aún (ej. "Orientación"). */
+  Nota0: string | null;
   /** no confirmado con datos reales, solo se vio null en el HAR */
   Nota1: string | null;
-  NotaFinal: string;
+  /** Null visto para una asignatura sin notas registradas aún (ej. "Orientación"). */
+  NotaFinal: string | null;
 }
 
 /** Respuesta de `GET /califica/asig?idAlu=`. */

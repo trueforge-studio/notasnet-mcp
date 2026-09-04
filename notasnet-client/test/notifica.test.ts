@@ -13,7 +13,10 @@ describe("NotasnetClient — notifica", () => {
     const result = await client.getLatestNotifications(20);
 
     expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/notifica/latest?last=20`, expect.anything());
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
+    // Titulo/Detalle pueden venir null junto con Alu/Alumno null (confirmado contra el backend real).
+    expect(result[2].Titulo).toBeNull();
+    expect(result[2].Detalle).toBeNull();
   });
 
   it("getNotificationEventDetail(notificationId) maps to the `noti` query param", async () => {

@@ -282,6 +282,7 @@ export class NotasnetClient {
         message: `La respuesta de ${method} ${url} no tiene la forma esperada`,
         url,
         issues: result.error.issues,
+        receivedBody: parsed,
       });
     }
     return result.data as T;

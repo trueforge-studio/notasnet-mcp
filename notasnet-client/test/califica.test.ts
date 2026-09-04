@@ -13,7 +13,10 @@ describe("NotasnetClient — califica", () => {
     const result = await client.getGrades(9000001);
 
     expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/califica/asig?idAlu=9000001`, expect.anything());
-    expect(result.calif).toHaveLength(2);
+    expect(result.calif).toHaveLength(3);
+    // PCurso/Nota0/NotaFinal pueden venir null para una asignatura sin notas registradas aún
+    // (confirmado contra el backend real, ej. "Orientación" antes de la primera evaluación).
+    expect(result.calif[2].NotaFinal).toBeNull();
   });
 
   it("getGrades(studentId, periodId) accepts an optional periodId without using it yet", async () => {

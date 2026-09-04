@@ -49,13 +49,17 @@ export class NotasnetApiError extends Error {
  */
 export class NotasnetShapeError extends Error {
   readonly url: string;
+  /** Issues de zod (`ZodError.issues`): path, código y expected/received por cada campo que no calzó. */
   readonly issues: unknown;
+  /** Cuerpo ya parseado como JSON que falló la validación, para poder inspeccionarlo sin repetir la llamada. */
+  readonly receivedBody: unknown;
 
-  constructor(params: { message: string; url: string; issues: unknown }) {
+  constructor(params: { message: string; url: string; issues: unknown; receivedBody: unknown }) {
     super(params.message);
     this.name = "NotasnetShapeError";
     this.url = params.url;
     this.issues = params.issues;
+    this.receivedBody = params.receivedBody;
   }
 }
 

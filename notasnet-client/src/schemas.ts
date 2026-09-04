@@ -259,8 +259,8 @@ export const latestNotificationSchema = z
   .object({
     Alu: nullableString,
     idNotifica: z.number(),
-    Titulo: z.string(),
-    Detalle: z.string(),
+    Titulo: nullableString,
+    Detalle: nullableString,
     Fecha: z.string(),
     TipoCodigo: z.string(),
     TipoNombre: z.string(),
@@ -321,9 +321,9 @@ const subjectGradesSchema = z
     PRut: z.string(),
     SubColor: z.number(),
     SubIcono: z.string(),
-    PCurso: z.string(),
-    Nota0: z.string(),
-    NotaFinal: z.string(),
+    PCurso: nullableString,
+    Nota0: nullableString,
+    NotaFinal: nullableString,
   })
   .passthrough();
 

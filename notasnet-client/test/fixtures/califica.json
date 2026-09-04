@@ -37,6 +37,22 @@
         "Nota0": "6.0",
         "Nota1": null,
         "NotaFinal": "6.0"
+      },
+      {
+        "TotOwner": 0,
+        "idSubsector": 400003,
+        "Owner": null,
+        "Ponderacion": null,
+        "idNota": 500003,
+        "SubNombre": "Orientacion",
+        "ProNombre": "Profesor Ejemplo",
+        "PRut": "12.345.678-9",
+        "SubColor": 3456789,
+        "SubIcono": "brain",
+        "PCurso": null,
+        "Nota0": null,
+        "Nota1": null,
+        "NotaFinal": null
       }
     ]
   },

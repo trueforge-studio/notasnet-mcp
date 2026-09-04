@@ -25,9 +25,13 @@ export function formatError(err: unknown): string {
     );
   }
   if (err instanceof NotasnetShapeError) {
+    const issuesText = JSON.stringify(err.issues, null, 2);
+    const bodyText = JSON.stringify(err.receivedBody, null, 2);
+    const truncatedBody = bodyText.length > 4000 ? `${bodyText.slice(0, 4000)}\n... (truncado)` : bodyText;
     return (
       `La respuesta de Notasnet para ${err.url} no tuvo la forma esperada (posible cambio del ` +
-      `backend). ${err.message}`
+      `backend). ${err.message}\n\nCampos que no calzaron (zod issues):\n${issuesText}\n\n` +
+      `Cuerpo recibido:\n${truncatedBody}`
     );
   }
   if (err instanceof Error) return `Error inesperado: ${err.message}`;

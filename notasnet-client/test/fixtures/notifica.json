@@ -23,6 +23,18 @@
       "Sujeto": "ina:9000001",
       "Visto": 1,
       "Alumno": 9000001
+    },
+    {
+      "Alu": null,
+      "idNotifica": 3000003,
+      "Titulo": null,
+      "Detalle": null,
+      "Fecha": "2026-08-28T08:12:10.073",
+      "TipoCodigo": "ag",
+      "TipoNombre": "Evento",
+      "Sujeto": "ag:1000002",
+      "Visto": 0,
+      "Alumno": null
     }
   ],
   "getNotificationEventDetail": {
