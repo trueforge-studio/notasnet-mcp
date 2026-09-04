@@ -510,7 +510,8 @@ export const folderSubjectSchema = z
     Curso: z.number(),
     Nombre: z.string(),
     NProfesor: z.string(),
-    Color: z.number(),
+    // null para asignaturas fusionadas (ej. "PLAN LECTOR", "LEN Y COM (PPAR)").
+    Color: nullableNumber,
   })
   .passthrough();
 export const folderSubjectListSchema = z.array(folderSubjectSchema);

@@ -677,7 +677,8 @@ export interface FolderSubject {
   Curso: number;
   Nombre: string;
   NProfesor: string;
-  Color: number;
+  /** null para asignaturas fusionadas (ej. "PLAN LECTOR", "LEN Y COM (PPAR)"). */
+  Color: number | null;
 }
 
 /** Un elemento de `GET /Carpetas/acles?alu=&alu=...`. */
