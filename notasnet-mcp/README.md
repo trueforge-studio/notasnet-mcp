@@ -235,6 +235,52 @@ sesión persistida (`~/.notasnet-mcp/session.json`) se reutilice automáticament
 así la contraseña nunca se guarda en ningún archivo, ni siquiera en memoria del proceso después
 del login.
 
+## Empaquetado como MCPB (`.mcpb`)
+
+Además de correr directo con `node dist/index.js` (o vía `npx`/`bin` en el futuro — ver nota
+abajo), este paquete se puede empaquetar como un archivo [MCPB](https://github.com/modelcontextprotocol/mcpb)
+(`.mcpb`, el formato de instalación de un clic para servidores MCP locales en Claude Desktop —
+similar a una extensión `.vsix`/`.crx`). Esto es **una forma adicional de distribuir el mismo
+servidor**, no un reemplazo: `dist/index.js` (build normal, con `notasnet-client` resuelto vía
+`node_modules`) sigue siendo la forma de correrlo en desarrollo, en tests, o eventualmente vía
+`npx` — ese camino no se toca acá.
+
+```bash
+npm run build:mcpb
+```
+
+Esto corre tres pasos (ver `package.json`):
+
+1. `build:mcpb-server` — un build de `tsup` **separado** (`tsup.mcpb.config.ts`, no el
+   `tsup.config.ts` normal) que empaqueta el servidor en un único archivo autocontenido
+   `mcpb/server/index.mjs`, con **todas** las dependencias embebidas (`@modelcontextprotocol/sdk`,
+   `zod`, `notasnet-client`). Es necesario porque un `.mcpb` es un zip que se instala y se mueve a
+   la carpeta de extensiones de Claude Desktop — un `node_modules` con el symlink que crea
+   `file:../notasnet-client` no sobreviviría ese traslado, así que en vez de copiar
+   `node_modules` se embebe todo en un solo archivo.
+2. `mcpb:validate` — valida `mcpb/manifest.json` contra el schema de MCPB (usa el CLI
+   `@anthropic-ai/mcpb`, instalado como devDependency).
+3. `mcpb:pack` — empaqueta `mcpb/` (el manifest + el `server/index.mjs` recién generado) en
+   `dist/notasnet-mcp.mcpb`.
+
+`mcpb/manifest.json` es el único archivo de este flujo que se trackea en git — declara los
+mismos tools que expone el servidor (el cliente MCP los descubre en runtime vía `tools/list`,
+así que el manifest no necesita listarlos uno por uno) y un bloque `user_config` con los mismos
+5 valores de configuración que ya acepta por variables de entorno (`baseUrl`, `colegio`,
+`apiKey`, `usuario`, `password`) — Claude Desktop le pide estos valores al usuario en una UI de
+configuración al instalar la extensión y los inyecta como las mismas variables de entorno
+(`NOTASNET_BASE_URL`, etc.) al arrancar el proceso. `apiKey` y `password` están marcados
+`"sensitive": true` para que el host los guarde en su almacén de secretos del sistema operativo
+en vez de en texto plano.
+
+`mcpb/server/` (el bundle generado) y `dist/*.mcpb` (el archivo empaquetado) están en
+`.gitignore` — son artefactos de build, igual que `dist/index.js`. Solo el `manifest.json`
+fuente se commitea.
+
+Para instalar el `.mcpb` resultante: abrir Claude Desktop → Configuración → Extensiones →
+instalar desde archivo, y apuntar a `dist/notasnet-mcp.mcpb`. La UI de configuración de la
+extensión pedirá los mismos valores descritos en "Configurar como servidor MCP" arriba.
+
 ## Persistencia de sesión
 
 - El servidor guarda la sesión activa en `~/.notasnet-mcp/session.json` (fuera de este repo, en

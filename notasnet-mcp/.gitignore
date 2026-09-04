@@ -1,3 +1,8 @@
 node_modules/
 dist/
 *.log
+
+# Build output del target build:mcpb — el bundle generado y el .mcpb empaquetado no se
+# commitean, solo mcpb/manifest.json (fuente) se trackea.
+mcpb/server/
+*.mcpb

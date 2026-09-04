@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.3",
+  "name": "notasnet-mcp",
+  "display_name": "Notasnet",
+  "version": "0.1.0",
+  "description": "Local MCP server for the Notasnet school portal (syscol.com/notasnet): agenda, grades, attendance, communications and more, as MCP tools.",
+  "long_description": "Wraps the notasnet-client library and exposes its read endpoints (students, agenda, grades, attendance, observations, schedule, folders, account, institutional info) plus login/session tools over stdio. Auth uses Notasnet's real session cookie, captured via a `notasnet_login` tool call or (optionally) automatic login from configured credentials. See this extension's README for the full tool list and how to obtain the required app API key.",
+  "author": {
+    "name": "Joaquín Núñez"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["notasnet", "syscol", "school", "mcp", "model-context-protocol"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.mjs"],
+      "env": {
+        "NOTASNET_BASE_URL": "${user_config.baseUrl}",
+        "NOTASNET_COLEGIO": "${user_config.colegio}",
+        "NOTASNET_APIKEY": "${user_config.apiKey}",
+        "NOTASNET_USUARIO": "${user_config.usuario}",
+        "NOTASNET_PASSWORD": "${user_config.password}"
+      }
+    }
+  },
+  "user_config": {
+    "baseUrl": {
+      "type": "string",
+      "title": "Base URL",
+      "description": "Base URL of the Notasnet deployment. Leave default unless you know otherwise.",
+      "required": false,
+      "default": "https://syscol.com/notasnet"
+    },
+    "colegio": {
+      "type": "string",
+      "title": "Colegio (slug)",
+      "description": "School slug from the Notasnet login URL (e.g. \"altomonte\" in syscol.com/notasnet/login?colegio=altomonte). Optional here — you can also pass it directly to the notasnet_login tool.",
+      "required": false
+    },
+    "apiKey": {
+      "type": "string",
+      "title": "App API key",
+      "description": "Fixed, non-secret application key required by Notasnet's login endpoint (NOT your password — see this extension's README, section \"Autenticación\", for how to obtain it once from your browser's network tab).",
+      "required": false,
+      "sensitive": true
+    },
+    "usuario": {
+      "type": "string",
+      "title": "Usuario / RUT",
+      "description": "Your Notasnet username (usually your RUT). Optional: if set together with password, colegio and apiKey, the server logs in automatically on startup. Otherwise, use the notasnet_login tool interactively instead of storing your password here.",
+      "required": false
+    },
+    "password": {
+      "type": "string",
+      "title": "Contraseña",
+      "description": "Your Notasnet password. Stored by your desktop app's secret storage, not in this manifest — but consider using the notasnet_login tool interactively instead of configuring this.",
+      "required": false,
+      "sensitive": true
+    }
+  }
+}

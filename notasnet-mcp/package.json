@@ -15,7 +15,11 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:mcpb-server": "tsup --config tsup.mcpb.config.ts",
+    "mcpb:validate": "mcpb validate mcpb/manifest.json",
+    "mcpb:pack": "mcpb pack mcpb dist/notasnet-mcp.mcpb",
+    "build:mcpb": "npm run build:mcpb-server && npm run mcpb:validate && npm run mcpb:pack"
   },
   "keywords": [
     "notasnet",
@@ -25,6 +29,7 @@
   ],
   "license": "UNLICENSED",
   "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
     "@types/node": "^22.10.5",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
