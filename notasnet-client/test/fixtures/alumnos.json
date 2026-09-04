@@ -1,0 +1,138 @@
+{
+  "listStudents": [
+    {
+      "idAlumno": 9000001,
+      "Anno": 2026,
+      "MatEstado": "MAT",
+      "NombreApellido": "Alumno Ejemplo Uno",
+      "Rut": "11.111.111-1",
+      "Curso": 100001,
+      "NCurso": "1o Basico A Ejemplo",
+      "NotasnetAcceso": true,
+      "IsApode": 1,
+      "IsSoste": 0,
+      "IsPadre": 0,
+      "EstadoAdmAnno": "MAT",
+      "PrematNivel": "Ejemplo1"
+    },
+    {
+      "idAlumno": 9000002,
+      "Anno": 2026,
+      "MatEstado": "MAT",
+      "NombreApellido": "Alumno Ejemplo Dos",
+      "Rut": "22.222.222-2",
+      "Curso": 100002,
+      "NCurso": "5o Basico B Ejemplo",
+      "NotasnetAcceso": true,
+      "IsApode": 1,
+      "IsSoste": 0,
+      "IsPadre": 0,
+      "EstadoAdmAnno": "MAT",
+      "PrematNivel": "Ejemplo2"
+    }
+  ],
+  "getStudentSummary": {
+    "LastEntre": null,
+    "NotaFinal": "6.5",
+    "Notas": [
+      { "Rango": "< 4.0", "TotAlus": 0, "Color": "color-alert" },
+      { "Rango": "4.0-4.9", "TotAlus": 1, "Color": "color-warning" },
+      { "Rango": "5.0-5.9", "TotAlus": 5, "Color": "color-info" },
+      { "Rango": "6.0-7.0", "TotAlus": 14, "Color": "color-success" }
+    ],
+    "AsiPorFinal": 95,
+    "InasiFinal": 3,
+    "Atrasos": 2,
+    "Edad": 10,
+    "InformacionMedica": null,
+    "Avisar1": null,
+    "Telefonos1": null,
+    "Avisar2": null,
+    "Telefonos2": null,
+    "Vacunas": null,
+    "Alergias": null,
+    "Enfermedades": null,
+    "GrupoSangre": null,
+    "Rut": "11.111.111-1",
+    "NombreApellido": "Alumno Ejemplo",
+    "NCurso": "1o Basico A Ejemplo",
+    "NombreApellidos": "Alumno Apellido Ejemplo",
+    "NViveCon": null,
+    "Email": null,
+    "Movil": null,
+    "NCCurso": "1EBA",
+    "Direccion": "Calle Ejemplo 1234, Comuna Ejemplo",
+    "FechaMatricula": "2025-03-01T09:00:00.000",
+    "NMatEstado": "Matriculado"
+  },
+  "getStudentSubjects": [
+    {
+      "Pos": null,
+      "Tipo": "asig",
+      "Nom": "LENGUAJE Y COMUNICACION",
+      "Ico": "book-open",
+      "Color": 1234567,
+      "PNom": "Profesor Ejemplo Uno",
+      "PRut": "12.345.678-9"
+    },
+    {
+      "Pos": null,
+      "Tipo": "asig",
+      "Nom": "MATEMATICA",
+      "Ico": "calculator",
+      "Color": 2345678,
+      "PNom": "Profesor Ejemplo Dos",
+      "PRut": "13.345.678-0"
+    }
+  ],
+  "getStudentGuardians": [
+    {
+      "Id": 5000001,
+      "Nom": "Apoderado Ejemplo Uno",
+      "Rut": "11.111.111-1",
+      "Email": "correo@ejemplo.cl",
+      "Movil": "+56900000000",
+      "Relacion": "Padre"
+    },
+    {
+      "Id": 5000002,
+      "Nom": "Apoderado Ejemplo Dos",
+      "Rut": "22.222.222-2",
+      "Email": "correo2@ejemplo.cl",
+      "Movil": "+56900000001",
+      "Relacion": "Madre"
+    }
+  ],
+  "getGuardianPermissions": {
+    "infpar": true,
+    "inflib": false
+  },
+  "getStudentInfo": {
+    "idAlumno": 9000001,
+    "Curso": 100001,
+    "Inicio": "08:00:00",
+    "Termino": "13:45:00",
+    "Dia": 5,
+    "Rojos": 0,
+    "Prom0": 6.5,
+    "Prom1": 6.4,
+    "Prom2": 6.6,
+    "Prom3": 0,
+    "NotaFinal": "6.5",
+    "PCurso": "6.30",
+    "AsiPor0": 96,
+    "AsiPor1": 94,
+    "AsiPor2": 95,
+    "AsiPorFinal": 95,
+    "Inasi0": 1,
+    "Inasi1": 1,
+    "Inasi2": 1,
+    "InasiFinal": 3,
+    "Atrasos": 2,
+    "Anno": 2026,
+    "Rut": "11.111.111-1",
+    "NombreApellido": "Alumno Ejemplo",
+    "NCurso": "1o Basico A Ejemplo",
+    "NombreApellidos": "Alumno Apellido Ejemplo"
+  }
+}

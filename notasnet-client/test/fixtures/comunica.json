@@ -1,0 +1,126 @@
+{
+  "listCommunications": [
+    { "idEventData": 2000001, "Fecha": "2026-08-28T10:51:14.890" },
+    { "idEventData": 2000002, "Fecha": "2026-08-27T14:15:49.723" }
+  ],
+  "getCommunication": {
+    "TipoCodigo": "COM",
+    "Id": 2000001,
+    "Fecha": "2026-05-18T14:57:28.703",
+    "Titulo": "Informacion Curso Ejemplo",
+    "Detalle": "<p>Cuerpo HTML de ejemplo del comunicado.</p>",
+    "Archivo": [
+      { "FileName": "circular_ejemplo.pdf", "Path": "cole/comunica/2000001_circular_ejemplo.pdf" }
+    ],
+    "UsRut": "14.111.111-1",
+    "UsNombre": "Profesor Autor Ejemplo",
+    "ComAlumnos": true,
+    "ComApoderados": true,
+    "ComPadres": true,
+    "ComSostenedores": true,
+    "Comentario": 0,
+    "Unread": 1,
+    "Sujeto": "co:2000001"
+  },
+  "getCommunicationNoAttachment": {
+    "TipoCodigo": "COM",
+    "Id": 2000002,
+    "Fecha": "2026-08-12T17:09:41.977",
+    "Titulo": null,
+    "Detalle": "Cuerpo sin adjuntos, de ejemplo.",
+    "Archivo": null,
+    "UsRut": "14.111.111-1",
+    "UsNombre": "Profesor Autor Ejemplo",
+    "ComAlumnos": true,
+    "ComApoderados": true,
+    "ComPadres": true,
+    "ComSostenedores": false,
+    "Comentario": 0,
+    "Unread": 0,
+    "Sujeto": "co:2000002"
+  },
+  "listCommunicationChannels": [
+    {
+      "Id": 900,
+      "Tipo": "Colegio",
+      "Nombre": "General Colegio Ejemplo",
+      "Codigo": null,
+      "Foto": "cole/insignia",
+      "Color": null,
+      "Ultima": {
+        "Fecha": "2026-08-28T10:51:14.890",
+        "Titulo": "Ultimo comunicado de ejemplo",
+        "Detalle": "Detalle breve de ejemplo"
+      },
+      "Total": 113,
+      "Unread": 2
+    },
+    {
+      "Id": 100002,
+      "Tipo": "Curso",
+      "Nombre": "5o Basico B Ejemplo",
+      "Codigo": "5EBB",
+      "Foto": null,
+      "Color": null,
+      "Ultima": {
+        "Fecha": "2026-08-27T19:07:29.357",
+        "Titulo": "Informativo de ejemplo",
+        "Detalle": "Detalle breve de ejemplo"
+      },
+      "Total": 40,
+      "Unread": 0
+    }
+  ],
+  "getCommunicationChannelStatus": {
+    "Id": 900,
+    "Tipo": "Colegio",
+    "Nombre": "General Colegio Ejemplo",
+    "Codigo": null,
+    "Foto": "cole/insignia",
+    "Color": null,
+    "Ultima": {
+      "Fecha": "2026-08-28T10:51:14.920",
+      "Titulo": "Ultimo comunicado de ejemplo",
+      "Detalle": "Detalle breve de ejemplo"
+    },
+    "Total": 113,
+    "Unread": 2,
+    "active": 1
+  },
+  "listCommunicationNotifications": [
+    { "idNotifica": 3000001, "Fecha": "2026-08-28T10:51:14.920" },
+    { "idNotifica": 3000002, "Fecha": "2026-08-28T09:16:38.740" }
+  ],
+  "getCommunicationNotification": {
+    "TipoCodigo": "Noti",
+    "Id": 3000001,
+    "Fecha": "2026-08-27T16:59:30.497",
+    "Tipo": "Evento",
+    "Titulo": "Titulo de notificacion de ejemplo",
+    "Detalle": "Detalle breve de ejemplo",
+    "Sujeto": "ag:1000001",
+    "Archivo": null,
+    "UsRut": "14.111.111-1",
+    "UsNombre": "Autor Ejemplo",
+    "Comentario": 0,
+    "Unread": 1,
+    "Alumno": 9000001,
+    "SujetoCodigo": "ag"
+  },
+  "getCommunicationNotificationNoAuthor": {
+    "TipoCodigo": "Noti",
+    "Id": 3000003,
+    "Fecha": "2026-08-28T10:51:14.920",
+    "Tipo": "Comunicacion",
+    "Titulo": "Titulo de ejemplo sin autor",
+    "Detalle": "Detalle breve de ejemplo",
+    "Sujeto": "ag:1000004",
+    "Archivo": null,
+    "UsRut": null,
+    "UsNombre": null,
+    "Comentario": 0,
+    "Unread": 1,
+    "Alumno": null,
+    "SujetoCodigo": "ag"
+  }
+}

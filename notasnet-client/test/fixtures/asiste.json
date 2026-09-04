@@ -1,0 +1,69 @@
+{
+  "getAttendanceBySubject": [
+    {
+      "SubColor": 1234567,
+      "SubIcono": "palette",
+      "ProfNombreApellido": "Profesor Ejemplo Uno",
+      "SubNombre": "Artes Visuales",
+      "idSubsector": 400003,
+      "Presente": 20,
+      "Ausente": 1,
+      "Online": 0,
+      "PrePor": 95,
+      "OnlPor": 0,
+      "AusPor": 5,
+      "Clases": 21,
+      "RProfesor": "12.345.678-9"
+    }
+  ],
+  "getAttendanceTotals": {
+    "AusPor": 5,
+    "PrePor": 95,
+    "OnlPor": 0,
+    "Clases": 100
+  },
+  "getMonthlyAttendance": {
+    "config": {
+      "TipoAsis": "diario",
+      "pmes": 2,
+      "asiste": "TRUE",
+      "DefaultYear": 2026,
+      "AsiAcle": "TRUE",
+      "PerNom": "1o Semestre,2o Semestre Ejemplo",
+      "ColPer": 2
+    },
+    "asis": [
+      {
+        "idAsistencia": "20260201",
+        "Tipo": "asis",
+        "Mes": "Feb",
+        "Asistencia": "Sin clases registradas en el periodo",
+        "Periodo": 1,
+        "Porcentaje": "0",
+        "Atrasos": "0",
+        "MMes": "2026-02-01T00:00:00",
+        "Total": "1",
+        "Nombre": "Febrero"
+      },
+      {
+        "idAsistencia": "20260301",
+        "Tipo": "asis",
+        "Mes": "Mar",
+        "Asistencia": "Asistencia registrada normalmente",
+        "Periodo": 1,
+        "Porcentaje": "64",
+        "Atrasos": "0",
+        "MMes": "2026-03-01T00:00:00",
+        "Total": "8",
+        "Nombre": "Marzo"
+      }
+    ]
+  },
+  "getTardiness": {
+    "Fecha": "2026-03-01T00:00:00",
+    "Items": [
+      { "id": 700001, "Tipo": "inasis", "Fecha": "2026-03-11T00:00:00" },
+      { "id": 700002, "Tipo": "inasis", "Fecha": "2026-03-10T00:00:00" }
+    ]
+  }
+}

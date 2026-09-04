@@ -1,0 +1,12 @@
+# Capturas HAR reales: contienen datos personales de menores, apoderados y profesores
+# (nombres, RUT, teléfonos, correos, y al menos una captura con un login real en texto
+# plano). Nunca deben commitearse — ver notasnet-client/README.md, sección "Privacidad".
+*.har
+
+# Informe de análisis del HAR: puede citar datos reales vistos durante el análisis.
+Notasnet_Analisis_HAR.docx
+
+.DS_Store
+node_modules/
+dist/
+*.log

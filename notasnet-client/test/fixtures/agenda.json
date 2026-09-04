@@ -1,0 +1,61 @@
+{
+  "getAgendaByDate": [
+    {
+      "Color": 9525946,
+      "Icono": "EV",
+      "SubTitle": "Idioma Extranjero: Ingles",
+      "FechaInicio": "2026-08-28T00:00:00",
+      "FechaTermino": "2026-08-28T00:00:00",
+      "Titulo": "Evento de ejemplo",
+      "Detalle": "Detalle de ejemplo del evento",
+      "TipoCodigo": "EVE",
+      "TipoNombre": "Evento",
+      "Sujeto": "ag:1000001",
+      "Online": null,
+      "Link": null,
+      "Files": null
+    },
+    {
+      "Color": 1234567,
+      "Icono": "flower",
+      "SubTitle": "Ciencias Naturales",
+      "FechaInicio": "2026-08-28T08:00:00",
+      "FechaTermino": "2026-08-28T08:45:00",
+      "Titulo": "Clase de ejemplo",
+      "Detalle": null,
+      "TipoCodigo": "cla",
+      "TipoNombre": "Clase",
+      "Sujeto": "cla:1000002",
+      "Online": false,
+      "Link": null,
+      "Files": 1
+    }
+  ],
+  "getAgendaEvents": [
+    {
+      "date": "2026-07-27T11:12:02.763",
+      "TipoCodigo": "COM",
+      "title": "Comunicado de ejemplo",
+      "content": "Contenido de ejemplo para el comunicado listado en el rango",
+      "Tipo": "ag",
+      "Sujeto": "ag:1000003",
+      "AccTipo": "Curso",
+      "AccNombre": "1o Basico A Ejemplo",
+      "curso": "1EBA",
+      "TipoNombre": "Comunicacion"
+    }
+  ],
+  "getAgendaEventDetail": {
+    "idEventData": 1000001,
+    "NTipo": "Evento",
+    "Fecha": "2026-08-17T00:00:00",
+    "Titulo": "Titulo de evento de ejemplo",
+    "Detalle": "Detalle largo de ejemplo del evento de agenda",
+    "Archivo": [
+      { "FileName": "archivo_ejemplo_1.pdf", "Path": "cole/agenda/1000001_archivo_ejemplo_1.pdf" },
+      { "FileName": "archivo_ejemplo_2.pdf", "Path": "cole/agenda/1000001_archivo_ejemplo_2.pdf" }
+    ],
+    "SubTitulo": "Subtitulo de ejemplo",
+    "NotiVista": null
+  }
+}

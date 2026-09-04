@@ -1,0 +1,141 @@
+{
+  "getAccountPaymentStatus": {
+    "Estado": "Al dia",
+    "BtnPago": false,
+    "Preferencia": ""
+  },
+  "getAccountInstallments": [
+    {
+      "Anno": 2026,
+      "FechaVence": "2026-01-05T00:00:00",
+      "ValorNeto": 150000,
+      "ValorPendiente": 0,
+      "Estado": "Pagada",
+      "LastPag": "2025-08-06T15:03:41.937"
+    },
+    {
+      "Anno": 2026,
+      "FechaVence": "2026-03-05T00:00:00",
+      "ValorNeto": 150000,
+      "ValorPendiente": 150000,
+      "Estado": "Pendiente",
+      "LastPag": null
+    }
+  ],
+  "getAccountPayments": [
+    {
+      "LinkFact": null,
+      "NDoc": "Boleta",
+      "Anno": 2026,
+      "DTE": 39,
+      "PDF": false,
+      "Fecha": "2026-08-11T14:56:01.860",
+      "FechaHora": "11/08/2026 14:56",
+      "Tipo": "Pago en linea",
+      "Nulo": false,
+      "Boleta": null,
+      "NBoleta": null,
+      "Monto": 150000,
+      "RowTextColor": null,
+      "SosNombre": "Sostenedor Ejemplo Ltda"
+    }
+  ],
+  "getAccountPayNowStatus": {
+    "tot": null,
+    "tit": "Pago en linea",
+    "enabled": false
+  },
+  "listCertificates": [
+    {
+      "Doc": null,
+      "Tipo": "PAD",
+      "id": 6000001,
+      "NombreApellido": "Apoderado Ejemplo",
+      "NCurso": "Apoderado",
+      "Anno": 2026,
+      "Rut": "11.111.111-1",
+      "Condicion": 1,
+      "MatEstado": "MAT",
+      "NMatEstado": "Matriculado",
+      "Cert": [
+        { "idCertificado": 1, "CertNombre": "Certificado de ejemplo", "Show": 1 }
+      ],
+      "CertFirma": [
+        {
+          "idCertificado": 1,
+          "CertNombre": "Cert ejemplo",
+          "Tipo": "alu",
+          "SujetoId": 9000001,
+          "Alumno": 9000001,
+          "Firmas": [
+            { "FechaFirma": "2025-08-06T15:10:50.140", "Cargo": "Director" }
+          ]
+        }
+      ]
+    }
+  ],
+  "getModifySchema": {
+    "fields": [
+      { "name": "ApellidoPaterno", "title": "Apellido Paterno", "type": "text", "grupo": "Personales", "max": 50, "reference": null },
+      { "name": "Alergias", "title": "Alergias", "type": "list", "grupo": "Medicos", "max": 200, "reference": "_alergias" }
+    ]
+  },
+  "getModifyInfo": {
+    "mdat": {
+      "ChangeData": null,
+      "ApellidoPaterno": "Ejemplo",
+      "ApellidoMaterno": "Apellido",
+      "Nombres": "Nombre Ejemplo",
+      "FechaNacimiento": "2019-04-15T00:00:00",
+      "Movil": null,
+      "Email": null,
+      "Avisar1": null,
+      "Telefonos1": null,
+      "Avisar2": null,
+      "Telefonos2": null,
+      "Alergias": null,
+      "Enfermedades": null,
+      "Medicamentos": null,
+      "InformacionMedica": null
+    }
+  },
+  "getModifyReference": {
+    "_alergias": [
+      { "idAlergia": 1, "Nombre": "Polen" },
+      { "idAlergia": 2, "Nombre": "Lactosa" }
+    ],
+    "_enfermedades": [
+      { "idEnfermedad": 1, "Nombre": "Asma" },
+      { "idEnfermedad": 2, "Nombre": "Anemia" }
+    ]
+  },
+  "getModifySelector": [
+    {
+      "IdAlu": null,
+      "Id": 9000001,
+      "Rut": "11.111.111-1",
+      "NombreApellido": "Alumno Ejemplo",
+      "NCurso": "1EBA",
+      "Tipo": "Alumno",
+      "Edit": 1,
+      "Direccion": "Calle Ejemplo 1234, Comuna Ejemplo",
+      "Comuna": "Comuna Ejemplo",
+      "Email": null,
+      "Movil": null
+    },
+    {
+      "IdAlu": 9000001,
+      "Id": 5000001,
+      "Rut": "12.111.111-1",
+      "NombreApellido": "Apoderado Ejemplo",
+      "NCurso": "Apoderado",
+      "Tipo": "Padre",
+      "Edit": 1,
+      "Direccion": "Calle Ejemplo 1234, Comuna Ejemplo",
+      "Comuna": "Comuna Ejemplo",
+      "Email": "correo@ejemplo.cl",
+      "Movil": "+56900000000"
+    }
+  ],
+  "getModifyDocuments": []
+}

@@ -1,0 +1,63 @@
+{
+  "listRegions": {
+    "schema": [],
+    "rows": [
+      { "Codigo": 5, "Nombre": "Valparaíso" },
+      { "Codigo": 13, "Nombre": "Metropolitana" }
+    ]
+  },
+  "listComunas": {
+    "schema": [],
+    "rows": [
+      { "Codigo": 5804, "Nombre": "Comuna Ejemplo" },
+      { "Codigo": 5602, "Nombre": "Otra Comuna Ejemplo" }
+    ]
+  },
+  "listSchools": {
+    "schema": [],
+    "rows": [
+      { "Codigo": "colegioejemplo", "Nombre": "Colegio Ejemplo" },
+      { "Codigo": null, "Nombre": "Colegio Sin Notasnet Ejemplo" }
+    ]
+  },
+  "getSchoolDetail": {
+    "Insignia": null,
+    "Membrete": null,
+    "Premat": "FALSE",
+    "Acles": "TRUE",
+    "Id": 999,
+    "DefaultYear": 2026,
+    "Codigo": "colegioejemplo",
+    "FechaVence": "2027-03-31T00:00:00",
+    "Nombre": "Colegio Ejemplo",
+    "Slogan": "Eslogan de ejemplo",
+    "PrimerMes": 2,
+    "ui": {}
+  },
+  "recoverPassword": { "ok": true },
+  "signIn": {
+    "id": 1000001,
+    "colegio": {
+      "idColegio": 999,
+      "Premat": "FALSE",
+      "Admision": "TRUE",
+      "Acles": "TRUE",
+      "Id": 999,
+      "DefaultYear": 2026,
+      "Codigo": "colegioejemplo",
+      "Nombre": "Colegio Ejemplo",
+      "Slogan": "Eslogan de ejemplo",
+      "LicenciaVencida": 0,
+      "ColegioRetirado": 0
+    },
+    "rut": "11.111.111-1",
+    "tipo": "apo",
+    "ColegioId": 999,
+    "nombre": "Nombre Apellido Ejemplo",
+    "titulo": "Apoderado",
+    "foto": "cole/fotos/11.111.111-1.jpg",
+    "proyecto": "Colegio Ejemplo",
+    "usreset": false,
+    "usuario": "11.111.111-1"
+  }
+}

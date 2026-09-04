@@ -1,0 +1,75 @@
+{
+  "getObservations": [
+    {
+      "GeneralCurso": 0,
+      "Fecha": "2026-08-25T10:35:42",
+      "Titulo": "Observacion academica de ejemplo",
+      "Detalle": "Detalle de ejemplo de la observacion",
+      "SubTitulo": {
+        "PerRut": "12.345.678-9",
+        "PerNom": "Profesor Ejemplo",
+        "PerCar": "Profesor Jefe",
+        "Asig": "Lenguaje y Comunicacion"
+      },
+      "NTipo": "Positiva",
+      "Color": 1234567,
+      "Sujeto": "ob:800001"
+    },
+    {
+      "GeneralCurso": 0,
+      "Fecha": "2026-07-31T13:11:05.257",
+      "Titulo": "Observacion de enfermeria de ejemplo",
+      "Detalle": "Detalle de ejemplo de la observacion de enfermeria",
+      "SubTitulo": "Motivo de ejemplo",
+      "NTipo": "Enfermeria",
+      "Color": 2345678,
+      "Sujeto": "ef:800002"
+    }
+  ],
+  "getSchedule": [
+    {
+      "Prof": "Profesor Ejemplo Uno",
+      "ProRut": "12.345.678-9",
+      "Dia": 1,
+      "Inicio": "08:00",
+      "Termino": "08:45",
+      "Duracion": 45,
+      "SubNombreInterno": "LENG",
+      "SubColor": 1234567
+    },
+    {
+      "Prof": "Profesor Ejemplo Dos",
+      "ProRut": "13.345.678-0",
+      "Dia": 1,
+      "Inicio": "08:45",
+      "Termino": "09:30",
+      "Duracion": 45,
+      "SubNombreInterno": "MAT",
+      "SubColor": 2345678
+    }
+  ],
+  "listFolderSubjects": [
+    {
+      "Id": 900001,
+      "Curso": 100001,
+      "Nombre": "Lenguaje y Comunicacion",
+      "NProfesor": "Profesor Ejemplo",
+      "Color": 1234567
+    },
+    {
+      "Id": 900002,
+      "Curso": 100001,
+      "Nombre": "Matematica",
+      "NProfesor": "Profesor Ejemplo Dos",
+      "Color": 2345678
+    }
+  ],
+  "listFolderCategories": [
+    { "Id": 39001, "Nombre": "Taller Ejemplo Uno", "Tipo": "acle" },
+    { "Id": 39002, "Nombre": "Taller Ejemplo Dos", "Tipo": "acle" }
+  ],
+  "listFolderFiles": [
+    { "Archivo": "900001_guia_de_ejemplo.pdf", "Fecha": "2026-08-28T10:51:14.890" },
+    { "Archivo": "900002_material_de_ejemplo.docx", "Fecha": "2026-08-27T14:15:49.723" }
+  ]
+}

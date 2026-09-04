@@ -1,0 +1,41 @@
+{
+  "name": "notasnet-client",
+  "version": "0.1.0",
+  "description": "TypeScript client library for the Notasnet school portal API (syscol.com/notasnet). API access layer only: types, HTTP client, endpoint mapping, attachment helpers. No auth flow, no MCP/business logic.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "smoke-test": "node scripts/smoke-test.mjs"
+  },
+  "keywords": [
+    "notasnet",
+    "syscol",
+    "school-api-client"
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "packageManager": "npm@11.3.0"
+}

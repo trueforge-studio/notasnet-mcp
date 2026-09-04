@@ -1,0 +1,60 @@
+{
+  "getLatestNotifications": [
+    {
+      "Alu": null,
+      "idNotifica": 3000001,
+      "Titulo": "Titulo de notificacion de ejemplo",
+      "Detalle": "Detalle breve de ejemplo",
+      "Fecha": "2026-08-28T10:51:14.920",
+      "TipoCodigo": "ag",
+      "TipoNombre": "Evento",
+      "Sujeto": "ag:1000001",
+      "Visto": 0,
+      "Alumno": null
+    },
+    {
+      "Alu": "Alumno Ejemplo (1o Basico A)",
+      "idNotifica": 3000002,
+      "Titulo": "Inasistencia de ejemplo",
+      "Detalle": "Detalle breve de ejemplo",
+      "Fecha": "2026-08-28T09:16:38.740",
+      "TipoCodigo": "ina",
+      "TipoNombre": "Inasistencia",
+      "Sujeto": "ina:9000001",
+      "Visto": 1,
+      "Alumno": 9000001
+    }
+  ],
+  "getNotificationEventDetail": {
+    "Detalle": {
+      "Tipo": "COM",
+      "TipoN": "Comunicacion",
+      "Id": 2000001,
+      "Fecha": "2026-08-28T10:51:14.890",
+      "Titulo": "Titulo de ejemplo",
+      "Detalle": "Detalle largo de ejemplo",
+      "Archivo": [
+        { "FileName": "archivo_ejemplo.pdf", "Path": "cole/comunica/2000001_archivo_ejemplo.pdf" }
+      ],
+      "SubTitulo": "Subtitulo de ejemplo",
+      "Color": 1234567,
+      "ColPath": "iconsax/ejemplo",
+      "UsRut": null,
+      "UsNom": null,
+      "AluRut": null,
+      "AluNom": null,
+      "AluCur": null
+    },
+    "Visto": 0,
+    "Sujeto": "ag:2000001"
+  },
+  "getUnreadCount": {
+    "Total": 5
+  },
+  "getMenuNotificationCounts": [
+    { "total": 5, "view": "notifica" }
+  ],
+  "markNotificationSeen": {
+    "ok": true
+  }
+}

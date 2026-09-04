@@ -1,0 +1,43 @@
+{
+  "isAuthenticated": { "auth": true },
+  "getPinStatus": { "Estado": 0 },
+  "getMenu": [
+    { "view": "home", "icon": "iconsax/home", "label": "Inicio", "elements": [] },
+    { "view": "comunica", "icon": "iconsax/message", "label": "Comunicaciones", "elements": [] }
+  ],
+  "getColConfig": { "Valor": null },
+  "listPublicNews": [
+    {
+      "idPublica": 100001,
+      "Fecha": "2026-08-24T15:42:21",
+      "Titulo": "Titulo de noticia de ejemplo",
+      "Contenido": "Contenido breve de ejemplo de la noticia publica",
+      "UserNombre": "Colegio",
+      "UserFoto": "cole/insignia",
+      "Colegio": null,
+      "Imagen": "cole/publicas/imagen_ejemplo.jpg"
+    }
+  ],
+  "getPublicNewsDetail": {
+    "idPublica": 100001,
+    "Fecha": "2026-08-24T15:42:21",
+    "Titulo": "Titulo de noticia de ejemplo",
+    "Contenido": "Contenido largo de ejemplo de la noticia publica, con mas detalle.",
+    "UserNombre": "Colegio",
+    "UserFoto": "cole/insignia",
+    "Colegio": null,
+    "Imagen": "cole/publicas/imagen_ejemplo.jpg"
+  },
+  "getPrematConfig": {
+    "FecInicio": null,
+    "FecTermino": null,
+    "Mensaje": null,
+    "Title": null,
+    "Activo": 0,
+    "Anno": 2026
+  },
+  "getConvivenciaDenunciaConfig": {
+    "ano": 2026,
+    "form": 1
+  }
+}

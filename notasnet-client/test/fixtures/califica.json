@@ -1,0 +1,48 @@
+{
+  "getGrades": {
+    "config": {
+      "califica": "TRUE",
+      "PerNom": "1o Semestre,2o Semestre",
+      "ColPer": 2
+    },
+    "calif": [
+      {
+        "TotOwner": 2,
+        "idSubsector": 400001,
+        "Owner": null,
+        "Ponderacion": null,
+        "idNota": 500001,
+        "SubNombre": "Lenguaje y Comunicacion",
+        "ProNombre": "Profesor Ejemplo",
+        "PRut": "12.345.678-9",
+        "SubColor": 1234567,
+        "SubIcono": "book-open",
+        "PCurso": "6.30",
+        "Nota0": "6.5",
+        "Nota1": null,
+        "NotaFinal": "6.5"
+      },
+      {
+        "TotOwner": 2,
+        "idSubsector": 400002,
+        "Owner": "Detalle de ponderacion de ejemplo",
+        "Ponderacion": "N1:0",
+        "idNota": 500002,
+        "SubNombre": "Matematica",
+        "ProNombre": "Profesor Ejemplo Dos",
+        "PRut": "13.345.678-0",
+        "SubColor": 2345678,
+        "SubIcono": "calculator",
+        "PCurso": "6.10",
+        "Nota0": "6.0",
+        "Nota1": null,
+        "NotaFinal": "6.0"
+      }
+    ]
+  },
+  "getGradeObservations": [],
+  "listGradePeriods": [
+    { "key": "0", "caption": "1o Semestre 2026", "icon": "iconsax/document-text", "enabled": "permisos & activo" },
+    { "key": "1", "caption": "2o Semestre 2026", "icon": "iconsax/document-text", "enabled": "permisos & activo" }
+  ]
+}
