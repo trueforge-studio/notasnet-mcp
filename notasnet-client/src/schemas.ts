@@ -237,7 +237,7 @@ export const communicationDetailSchema = z
 const channelLastMessageSchema = z
   .object({
     Fecha: z.string(),
-    Titulo: z.string(),
+    Titulo: z.string().optional(),
     Detalle: z.string(),
   })
   .passthrough();
@@ -249,7 +249,8 @@ export const communicationChannelSchema = z
     Nombre: z.string(),
     Codigo: nullableString,
     Foto: nullableString,
-    Ultima: channelLastMessageSchema,
+    Color: nullableNumber,
+    Ultima: channelLastMessageSchema.nullable(),
     Total: z.number(),
     Unread: z.number(),
   })

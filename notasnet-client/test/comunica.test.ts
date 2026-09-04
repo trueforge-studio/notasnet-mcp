@@ -46,7 +46,12 @@ describe("NotasnetClient — comunica", () => {
     const result = await client.listCommunicationChannels();
 
     expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/comunica/contactos?buscar=`, expect.anything());
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(4);
+    // Ultima.Titulo puede estar ausente, Ultima puede ser null (canal sin actividad), y Color
+    // es un entero (RGB) o null — todo confirmado en producción.
+    expect(result[2]?.Ultima?.Titulo).toBeUndefined();
+    expect(result[2]?.Color).toBe(16777211);
+    expect(result[3]?.Ultima).toBeNull();
   });
 
   it("getCommunicationChannelStatus(search) calls GET /api/comunica/contacto/notificacion", async () => {

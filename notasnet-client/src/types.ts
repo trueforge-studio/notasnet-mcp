@@ -365,7 +365,8 @@ export interface CommunicationDetail {
 /** Resumen de la última comunicación de un canal, embebido en `contactos`/`contacto/notificacion`. */
 export interface ChannelLastMessage {
   Fecha: IsoDateTimeString;
-  Titulo: string;
+  /** Puede venir ausente: confirmado en producción para algunos mensajes sin título. */
+  Titulo?: string;
   Detalle: string;
 }
 
@@ -378,9 +379,10 @@ export interface CommunicationChannel {
   Codigo: string | null;
   /** Ruta relativa de la foto/insignia del canal, o null. */
   Foto: string | null;
-  /** no confirmado con datos reales, solo se vio null en el HAR */
-  Color: string | null;
-  Ultima: ChannelLastMessage;
+  /** Confirmado en producción: color codificado como entero decimal (RGB), o null. */
+  Color: number | null;
+  /** Null para un canal sin actividad reciente (sin mensajes) — confirmado en producción. */
+  Ultima: ChannelLastMessage | null;
   Total: number;
   Unread: number;
 }

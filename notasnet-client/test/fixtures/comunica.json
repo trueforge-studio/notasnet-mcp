@@ -69,6 +69,31 @@
       },
       "Total": 40,
       "Unread": 0
+    },
+    {
+      "Id": 100003,
+      "Tipo": "Subsector",
+      "Nombre": "ORIENTACION Ejemplo",
+      "Codigo": "5EBB",
+      "Foto": "brain",
+      "Color": 16777211,
+      "Ultima": {
+        "Fecha": "2026-08-17T16:21:53.120",
+        "Detalle": "Detalle sin titulo de ejemplo"
+      },
+      "Total": 1,
+      "Unread": 0
+    },
+    {
+      "Id": 100004,
+      "Tipo": "Subsector",
+      "Nombre": "Canal sin actividad Ejemplo",
+      "Codigo": null,
+      "Foto": null,
+      "Color": null,
+      "Ultima": null,
+      "Total": 0,
+      "Unread": 0
     }
   ],
   "getCommunicationChannelStatus": {
