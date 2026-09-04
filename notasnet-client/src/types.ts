@@ -593,11 +593,12 @@ export interface MonthlyAttendanceItem {
   Tipo: string;
   /** Nombre corto del mes en español, ej. "Mar" (formato visto, no un enum cerrado). */
   Mes: string;
-  Asistencia: string;
+  /** null para registros tipo "acle", que solo traen Porcentaje acumulado del año. */
+  Asistencia: string | null;
   Periodo: number;
   /** Viene como string numérico, ej. "64". */
   Porcentaje: string;
-  Atrasos: string;
+  Atrasos: string | null;
   MMes: IsoDateTimeString;
   Total: string;
   Nombre: string;
@@ -630,7 +631,8 @@ export interface TardinessResponse {
 export interface ObservationAcademicSubtitle {
   PerRut: RutString;
   PerNom: string;
-  PerCar: string;
+  /** Ausente para observaciones NTipo "Negativa" (conducta); presente para "Positiva". */
+  PerCar?: string;
   Asig: string;
 }
 

@@ -429,10 +429,11 @@ const monthlyAttendanceItemSchema = z
     idAsistencia: z.string(),
     Tipo: z.string(),
     Mes: z.string(),
-    Asistencia: z.string(),
+    // Asistencia/Atrasos are null for "acle" records, which only carry a yearly Porcentaje.
+    Asistencia: z.string().nullable(),
     Periodo: z.number(),
     Porcentaje: z.string(),
-    Atrasos: z.string(),
+    Atrasos: z.string().nullable(),
     MMes: z.string(),
     Total: z.string(),
     Nombre: z.string(),
@@ -467,7 +468,8 @@ const observationAcademicSubtitleSchema = z
   .object({
     PerRut: z.string(),
     PerNom: z.string(),
-    PerCar: z.string(),
+    // Ausente para observaciones NTipo "Negativa" (conducta); presente para "Positiva".
+    PerCar: z.string().optional(),
     Asig: z.string(),
   })
   .passthrough();
