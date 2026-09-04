@@ -304,7 +304,8 @@ export interface AgendaRangeEvent {
   date: IsoDateTimeString;
   TipoCodigo: TipoCodigo;
   title: string;
-  content: string;
+  /** null en eventos Tipo "ev" (evaluaciones, TipoCodigo "PRU") sin detalle adicional cargado. */
+  content: string | null;
   /** Código corto del tipo de sujeto referenciado (ej. "ag" = agenda). */
   Tipo: string;
   Sujeto: string;

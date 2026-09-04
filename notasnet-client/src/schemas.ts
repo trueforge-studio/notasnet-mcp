@@ -181,7 +181,8 @@ export const agendaRangeEventSchema = z
     date: z.string(),
     TipoCodigo: z.string(),
     title: z.string(),
-    content: z.string(),
+    // null en eventos Tipo "ev" (evaluaciones, TipoCodigo "PRU") sin detalle adicional cargado.
+    content: nullableString,
     Tipo: z.string(),
     Sujeto: z.string(),
     AccTipo: z.string(),
