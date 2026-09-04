@@ -12,10 +12,10 @@
   "keywords": ["notasnet", "syscol", "school", "mcp", "model-context-protocol"],
   "server": {
     "type": "node",
-    "entry_point": "server/index.mjs",
+    "entry_point": "server/index.cjs",
     "mcp_config": {
       "command": "node",
-      "args": ["${__dirname}/server/index.mjs"],
+      "args": ["${__dirname}/server/index.cjs"],
       "env": {
         "NOTASNET_BASE_URL": "${user_config.baseUrl}",
         "NOTASNET_COLEGIO": "${user_config.colegio}",

@@ -30,6 +30,10 @@ const FAKE_STUDENTS = [
   },
 ];
 
+// PNG 1x1 transparente — la imagen más pequeña posible con una firma PNG válida.
+const TINY_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+
 const fetchMock = vi.fn(async (input: string | URL | Request) => {
   const url = typeof input === "string" ? input : input.toString();
   if (url.includes("/api/alumnos")) {
@@ -40,6 +44,15 @@ const fetchMock = vi.fn(async (input: string | URL | Request) => {
   }
   if (url.includes("/api/colegio/region")) {
     return jsonResponse({ schema: [], rows: [{ Codigo: 13, Nombre: "Región Ejemplo" }] });
+  }
+  if (url.includes("cole/comunica/foto_ejemplo.png")) {
+    return new Response(Buffer.from(TINY_PNG_BASE64, "base64"), {
+      status: 200,
+      headers: { "content-type": "image/png" },
+    });
+  }
+  if (url.includes("cole/comunica/archivo_ejemplo.xyz")) {
+    return new Response("contenido sin formato soportado", { status: 200 });
   }
   return jsonResponse({}, 404);
 });
@@ -76,6 +89,7 @@ describe("notasnet-mcp server", () => {
     expect(names).toContain("notasnet_get_agenda_by_date");
     expect(names).toContain("notasnet_mark_notification_seen");
     expect(names).toContain("notasnet_get_attachment_url");
+    expect(names).toContain("notasnet_get_attachment_content");
     expect(names).toContain("notasnet_list_regions");
 
     // signInWithQr lanza NotImplementedError en la librería — no debe existir como tool.
@@ -127,5 +141,32 @@ describe("notasnet-mcp server", () => {
     const text = (result.content[0] as { type: "text"; text: string }).text;
     const parsed = JSON.parse(text) as unknown;
     expect(Array.isArray(parsed)).toBe(true);
+  });
+
+  it("notasnet_get_attachment_content returns an image content block for a PNG", async () => {
+    const client = await connectedClient();
+    const result = (await client.callTool({
+      name: "notasnet_get_attachment_content",
+      arguments: { fileName: "foto_ejemplo.png", path: "cole/comunica/foto_ejemplo.png" },
+    })) as CallToolResult;
+
+    expect(result.isError).toBeFalsy();
+    expect(result.content).toHaveLength(1);
+    const block = result.content[0] as { type: string; data: string; mimeType: string };
+    expect(block.type).toBe("image");
+    expect(block.mimeType).toBe("image/png");
+    expect(block.data).toBe(TINY_PNG_BASE64);
+  });
+
+  it("notasnet_get_attachment_content returns a plain-text notice for an unsupported extension", async () => {
+    const client = await connectedClient();
+    const result = (await client.callTool({
+      name: "notasnet_get_attachment_content",
+      arguments: { fileName: "archivo_ejemplo.xyz", path: "cole/comunica/archivo_ejemplo.xyz" },
+    })) as CallToolResult;
+
+    expect(result.isError).toBeFalsy();
+    const text = (result.content[0] as { type: "text"; text: string }).text;
+    expect(text).toMatch(/no soportado/);
   });
 });

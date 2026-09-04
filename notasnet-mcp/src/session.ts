@@ -43,11 +43,20 @@ export const envConfig = {
   password: process.env.NOTASNET_PASSWORD || undefined,
 };
 
+/**
+ * Headers de autenticación de la sesión activa (cookie `ntauth`), o `{}` si no hay sesión.
+ * Usado tanto por `client` (inyectado como `getAuthHeaders`) como por cualquier `fetch` manual
+ * fuera de `NotasnetClient` que necesite la misma cookie — ej. la descarga de adjuntos en
+ * `src/tools/attachments.ts`, que no pasa por los métodos de `NotasnetClient`.
+ */
+export function getAuthHeaders(): Record<string, string> {
+  return session.sessionCookie ? { cookie: formatCookieHeader(session.sessionCookie) } : {};
+}
+
 /** Instancia compartida de `NotasnetClient` usada por todas las herramientas. */
 export const client = new NotasnetClient({
   baseUrl: envConfig.baseUrl,
-  getAuthHeaders: (): Record<string, string> =>
-    session.sessionCookie ? { cookie: formatCookieHeader(session.sessionCookie) } : {},
+  getAuthHeaders,
 });
 
 /** True si hay una cookie de sesión cargada (en memoria), sin hacer ninguna llamada de red. */

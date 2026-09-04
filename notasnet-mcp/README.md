@@ -147,16 +147,33 @@ ese mismo error, así que se deja sin envolver.
 
 Útil para encontrar el slug `colegio` que exige `notasnet_login`.
 
-### Adjuntos (sin sesión)
+### Adjuntos
 
-| Herramienta | Ayuda de `notasnet-client` | Descripción |
+| Herramienta | Sesión | Descripción |
 |---|---|---|
-| `notasnet_get_attachment_url` | `buildAttachmentUrl` | Resuelve la URL absoluta de un adjunto embebido (`{FileName, Path}`) de un comunicado/evento/notificación. |
-| `notasnet_get_static_resource_url` | — | Resuelve la URL absoluta de un recurso estático (ej. foto de alumno) a partir de su ruta relativa. |
+| `notasnet_get_attachment_url` | Sin sesión | Resuelve la URL absoluta de un adjunto embebido (`{FileName, Path}`), sin descargar contenido. |
+| `notasnet_get_static_resource_url` | Sin sesión | Resuelve la URL absoluta de un recurso estático (ej. foto de alumno) a partir de su ruta relativa. |
+| `notasnet_get_attachment_content` | Usa la cookie de sesión si hay una activa | Descarga un adjunto embebido y devuelve su contenido en la propia respuesta del tool. |
 
-Ninguna de las dos descarga contenido: un tool MCP no puede devolver bytes binarios de forma
-práctica, así que ambas devuelven solo la URL resuelta para que el llamador decida cómo
-obtenerla (el backend no usa tokens de descarga ni URLs firmadas — es un `GET` estático plano).
+`notasnet_get_attachment_url`/`notasnet_get_static_resource_url` no descargan nada — solo
+resuelven la URL para que el llamador decida cómo obtenerla (el backend no usa tokens de
+descarga ni URLs firmadas: es un `GET` estático plano).
+
+`notasnet_get_attachment_content` sí trae los bytes y los devuelve directo en la respuesta:
+
+- PDF → texto extraído con [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) (API v2:
+  `new PDFParse({ data: buffer }).getText()`), con el número de páginas al inicio.
+- DOCX → texto extraído con [`mammoth`](https://www.npmjs.com/package/mammoth)
+  (`extractRawText`).
+- PNG/JPG/JPEG → un content block MCP de tipo `image` (`{ type: "image", data: <base64>,
+  mimeType }`) — el SDK de MCP soporta contenido de imagen nativamente, así que esto llega
+  "visible" en la respuesta del tool sin pasar por una URL intermedia.
+- Cualquier otra extensión → un content block de texto avisando que el formato no está
+  soportado, no un error.
+
+La descarga usa la misma cookie de sesión (`getAuthHeaders` de `src/session.ts`) que el resto
+de las herramientas — no se confirmó si estos recursos realmente la exigen (ver
+`notasnet-client/README.md`, sección "Adjuntos"), pero se envía igual por si acaso.
 
 ## Instalación y build
 
@@ -253,14 +270,14 @@ Esto corre tres pasos (ver `package.json`):
 
 1. `build:mcpb-server` — un build de `tsup` **separado** (`tsup.mcpb.config.ts`, no el
    `tsup.config.ts` normal) que empaqueta el servidor en un único archivo autocontenido
-   `mcpb/server/index.mjs`, con **todas** las dependencias embebidas (`@modelcontextprotocol/sdk`,
+   `mcpb/server/index.cjs`, con **todas** las dependencias embebidas (`@modelcontextprotocol/sdk`,
    `zod`, `notasnet-client`). Es necesario porque un `.mcpb` es un zip que se instala y se mueve a
    la carpeta de extensiones de Claude Desktop — un `node_modules` con el symlink que crea
    `file:../notasnet-client` no sobreviviría ese traslado, así que en vez de copiar
    `node_modules` se embebe todo en un solo archivo.
 2. `mcpb:validate` — valida `mcpb/manifest.json` contra el schema de MCPB (usa el CLI
    `@anthropic-ai/mcpb`, instalado como devDependency).
-3. `mcpb:pack` — empaqueta `mcpb/` (el manifest + el `server/index.mjs` recién generado) en
+3. `mcpb:pack` — empaqueta `mcpb/` (el manifest + el `server/index.cjs` recién generado) en
    `dist/notasnet-mcp.mcpb`.
 
 `mcpb/manifest.json` es el único archivo de este flujo que se trackea en git — declara los
