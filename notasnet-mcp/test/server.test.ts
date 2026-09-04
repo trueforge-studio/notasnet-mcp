@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
@@ -10,6 +11,17 @@ const FIXTURES_DIR = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
 // PDF real (generado con `cupsfilter` a partir de texto plano) — contenido genérico, sin datos
 // personales. Sirve para probar la extracción real vía pdf-parse, no solo el manejo de errores.
 const SAMPLE_PDF = readFileSync(join(FIXTURES_DIR, "sample.pdf"));
+
+/**
+ * `src/session.ts` persiste la sesión en `~/.notasnet-mcp/session.json` (ruta calculada una
+ * vez, vía `homedir()`, al importar el módulo). Para probar herramientas autenticadas sin
+ * tocar el `~/.notasnet-mcp` real de quien corre los tests, se redirige `HOME`/`USERPROFILE`
+ * a un directorio temporal ANTES de la primera importación de `../src/server.js` (que importa
+ * `../src/session.js` transitivamente).
+ */
+const FAKE_HOME = mkdtempSync(join(tmpdir(), "notasnet-mcp-test-"));
+process.env.HOME = FAKE_HOME;
+process.env.USERPROFILE = FAKE_HOME;
 
 /**
  * Mockea `globalThis.fetch` ANTES de importar `../src/server.js` (que importa `../src/session.js`,
@@ -38,6 +50,84 @@ const FAKE_STUDENTS = [
   },
 ];
 
+const FAKE_STUDENT_ID = 7109341;
+
+// Notificaciones "nt" (nota nueva) usadas para probar notasnet_get_recent_grades: una que
+// calza con una asignatura conocida (idNota 73510984, cruzable contra FAKE_GRADES_RESPONSE) y
+// otra cuya asignatura solo se puede recuperar parseando el Detalle (idNota desconocido en
+// calific, simula una asignatura que ya no aparece en el periodo vigente).
+const FAKE_GRADE_NOTIFICATIONS = [
+  {
+    Alu: "Antonia Núñez",
+    idNotifica: 1,
+    Titulo: "Calificación Antonia Núñez",
+    Detalle: "El alumno obtuvo un 7.0 en la asignatura de ARTES VISUALES.",
+    Fecha: "2026-09-04T11:52:02.89",
+    TipoCodigo: "nt",
+    TipoNombre: "Notas",
+    Sujeto: "nt:73510984|6",
+    Visto: 0,
+    Alumno: FAKE_STUDENT_ID,
+  },
+  {
+    Alu: "Antonia Núñez",
+    idNotifica: 2,
+    Titulo: "Calificación Antonia Núñez",
+    Detalle: "El alumno obtuvo un 5.5 en la asignatura de HISTORIA.",
+    Fecha: "2026-08-20T09:00:00",
+    TipoCodigo: "nt",
+    TipoNombre: "Notas",
+    Sujeto: "nt:99999999|3",
+    Visto: 0,
+    Alumno: FAKE_STUDENT_ID,
+  },
+  // Otro alumno: debe quedar filtrada.
+  {
+    Alu: "Otro Alumno",
+    idNotifica: 3,
+    Titulo: "Calificación Otro Alumno",
+    Detalle: "El alumno obtuvo un 6.0 en la asignatura de MATEMÁTICA.",
+    Fecha: "2026-08-21T09:00:00",
+    TipoCodigo: "nt",
+    TipoNombre: "Notas",
+    Sujeto: "nt:11111111|1",
+    Visto: 0,
+    Alumno: 1000001,
+  },
+  // Otro tipo de notificación: debe quedar filtrada.
+  {
+    Alu: "Antonia Núñez",
+    idNotifica: 4,
+    Titulo: "Inasistencia",
+    Detalle: "Inasistencia registrada.",
+    Fecha: "2026-08-22T09:00:00",
+    TipoCodigo: "as",
+    TipoNombre: "Asistencia",
+    Sujeto: "as:123",
+    Visto: 0,
+    Alumno: FAKE_STUDENT_ID,
+  },
+];
+
+const FAKE_GRADES_RESPONSE = {
+  config: { califica: "TRUE", PerNom: "1° Semestre", ColPer: 1 },
+  calif: [
+    {
+      TotOwner: 1,
+      idSubsector: 1,
+      idNota: 73510984,
+      SubNombre: "Artes Visuales",
+      ProNombre: "Prof. Ejemplo",
+      PRut: "11.111.111-1",
+      SubColor: 1,
+      SubIcono: "icon",
+      PCurso: "70",
+      Nota0: "7.0",
+      NotaFinal: null,
+    },
+  ],
+};
+
 // PNG 1x1 transparente — la imagen más pequeña posible con una firma PNG válida.
 const TINY_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
@@ -52,6 +142,12 @@ const fetchMock = vi.fn(async (input: string | URL | Request) => {
   }
   if (url.includes("/api/colegio/region")) {
     return jsonResponse({ schema: [], rows: [{ Codigo: 13, Nombre: "Región Ejemplo" }] });
+  }
+  if (url.includes("/api/notifica/latest")) {
+    return jsonResponse(FAKE_GRADE_NOTIFICATIONS);
+  }
+  if (url.includes("/api/califica/asig")) {
+    return jsonResponse(FAKE_GRADES_RESPONSE);
   }
   if (url.includes("cole/comunica/foto_ejemplo.png")) {
     return new Response(Buffer.from(TINY_PNG_BASE64, "base64"), {
@@ -72,6 +168,7 @@ vi.stubGlobal("fetch", fetchMock);
 
 // Importado dinámicamente después de stubGlobal para que `NotasnetClient` capture el mock.
 const { createServer } = await import("../src/server.js");
+const { setSession, clearSession } = await import("../src/session.js");
 
 async function connectedClient() {
   const client = new Client({ name: "test-client", version: "0.0.0" });
@@ -192,5 +289,54 @@ describe("notasnet-mcp server", () => {
     expect(result.isError).toBeFalsy();
     const text = (result.content[0] as { type: "text"; text: string }).text;
     expect(text).toMatch(/no soportado/);
+  });
+
+  it("notasnet_get_recent_grades cruza notifica/latest (tipo nt) con califica/asig, filtra por alumno y ordena desc", async () => {
+    setSession("colegio-ejemplo", { name: "ntauth", value: "fake-cookie" });
+    try {
+      const client = await connectedClient();
+      const result = (await client.callTool({
+        name: "notasnet_get_recent_grades",
+        arguments: { studentId: FAKE_STUDENT_ID },
+      })) as CallToolResult;
+
+      expect(result.isError).toBeFalsy();
+      const grades = JSON.parse((result.content[0] as { type: "text"; text: string }).text) as Array<{
+        fecha: string;
+        idNota: number | null;
+        asignatura: string | null;
+        nota: string | null;
+        detalle: string | null;
+      }>;
+
+      // Solo las 2 notificaciones "nt" del alumno correcto (se descartan otro alumno y otro TipoCodigo).
+      expect(grades).toHaveLength(2);
+      // Orden descendente por fecha.
+      expect(grades[0].fecha).toBe("2026-09-04T11:52:02.89");
+      expect(grades[1].fecha).toBe("2026-08-20T09:00:00");
+      // idNota 73510984 calza contra calific: nombre normalizado desde SubNombre, no desde el Detalle.
+      expect(grades[0]).toMatchObject({ idNota: 73510984, asignatura: "Artes Visuales", nota: "7.0" });
+      // idNota 99999999 no está en calific: se recurre al nombre de asignatura parseado del Detalle.
+      expect(grades[1]).toMatchObject({ idNota: 99999999, asignatura: "HISTORIA", nota: "5.5" });
+    } finally {
+      clearSession();
+    }
+  });
+
+  it("notasnet_get_recent_grades respeta `limit` tras ordenar", async () => {
+    setSession("colegio-ejemplo", { name: "ntauth", value: "fake-cookie" });
+    try {
+      const client = await connectedClient();
+      const result = (await client.callTool({
+        name: "notasnet_get_recent_grades",
+        arguments: { studentId: FAKE_STUDENT_ID, limit: 1 },
+      })) as CallToolResult;
+
+      expect(result.isError).toBeFalsy();
+      const grades = JSON.parse((result.content[0] as { type: "text"; text: string }).text) as unknown[];
+      expect(grades).toHaveLength(1);
+    } finally {
+      clearSession();
+    }
   });
 });
