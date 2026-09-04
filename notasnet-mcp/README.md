@@ -161,8 +161,16 @@ descarga ni URLs firmadas: es un `GET` estático plano).
 
 `notasnet_get_attachment_content` sí trae los bytes y los devuelve directo en la respuesta:
 
-- PDF → texto extraído con [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) (API v2:
-  `new PDFParse({ data: buffer }).getText()`), con el número de páginas al inicio.
+- PDF → texto extraído con [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) **v1**
+  (`pdf(buffer).then(data => data.text)`), con el número de páginas al inicio. A propósito NO
+  se usa la v2 (API por clases, `new PDFParse(...).getText()`): v2 envuelve `pdfjs-dist`, que
+  trae una dependencia nativa obligatoria (`@napi-rs/canvas`, un binario precompilado) para
+  rutas de renderizado por canvas que ni siquiera se usan acá (solo se llama texto). Esa
+  dependencia nativa se compila contra una versión de Node específica (ABI/`NODE_MODULE_VERSION`)
+  y falló en producción: funcionaba con el Node del sistema pero crasheaba en silencio al
+  arrancar bajo el Node embebido de Claude Desktop (versión distinta), matando el proceso antes
+  de poder responder el handshake MCP. v1 es JS puro (sin dependencias nativas, solo `debug` y
+  `node-ensure`) — exactamente el paquete simple que hace falta para esto.
 - DOCX → texto extraído con [`mammoth`](https://www.npmjs.com/package/mammoth)
   (`extractRawText`).
 - PNG/JPG/JPEG → un content block MCP de tipo `image` (`{ type: "image", data: <base64>,
@@ -271,10 +279,12 @@ Esto corre tres pasos (ver `package.json`):
 1. `build:mcpb-server` — un build de `tsup` **separado** (`tsup.mcpb.config.ts`, no el
    `tsup.config.ts` normal) que empaqueta el servidor en un único archivo autocontenido
    `mcpb/server/index.cjs`, con **todas** las dependencias embebidas (`@modelcontextprotocol/sdk`,
-   `zod`, `notasnet-client`). Es necesario porque un `.mcpb` es un zip que se instala y se mueve a
-   la carpeta de extensiones de Claude Desktop — un `node_modules` con el symlink que crea
-   `file:../notasnet-client` no sobreviviría ese traslado, así que en vez de copiar
-   `node_modules` se embebe todo en un solo archivo.
+   `zod`, `notasnet-client`, `pdf-parse`, `mammoth`). Es necesario porque un `.mcpb` es un zip
+   que se instala y se mueve a la carpeta de extensiones de Claude Desktop — un `node_modules`
+   con el symlink que crea `file:../notasnet-client` no sobreviviría ese traslado, así que en
+   vez de copiar `node_modules` se embebe todo en un solo archivo. Formato CJS (no ESM) por el
+   mismo motivo que se explica en el comentario de `tsup.mcpb.config.ts` (interop de `require()`
+   con `mammoth`).
 2. `mcpb:validate` — valida `mcpb/manifest.json` contra el schema de MCPB (usa el CLI
    `@anthropic-ai/mcpb`, instalado como devDependency).
 3. `mcpb:pack` — empaqueta `mcpb/` (el manifest + el `server/index.cjs` recién generado) en

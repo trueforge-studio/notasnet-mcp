@@ -1,11 +1,46 @@
+import { createRequire } from "node:module";
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult, ImageContent, TextContent } from "@modelcontextprotocol/sdk/types.js";
 import { buildAttachmentUrl, downloadAttachment } from "notasnet-client";
-import { PDFParse } from "pdf-parse";
 import * as mammoth from "mammoth";
 import { client, getAuthHeaders } from "../session.js";
 import { errorResult, formatError, runTool } from "../toolHelper.js";
+
+/**
+ * `pdf-parse@1`'s propio `index.js` hace `let isDebugMode = !module.parent` para decidir si
+ * corre un auto-test que lee un PDF de ejemplo hardcodeado del paquete (`test/data/...pdf`).
+ * Confirmado en runtime real (no solo bajo Vitest): con cualquier `import` ESM — o bundleado,
+ * da lo mismo — `module.parent` nunca queda seteado como ese chequeo espera, así que el
+ * auto-test SIEMPRE se dispara y revienta con `ENOENT`. `lib/pdf-parse.js` es la implementación
+ * real sin ese wrapper — se importa por ahí con `require` para evitarlo del todo. `@types/pdf-parse`
+ * no tipa ese subpath, de ahí el tipo manual acá abajo con solo los campos que se usan.
+ *
+ * Este mismo archivo se compila a dos formatos distintos (ver tsup.config.ts vs
+ * tsup.mcpb.config.ts): ESM para el build normal (`dist/index.js`) y CJS para el bundle MCPB
+ * (`mcpb/server/index.cjs`). En CJS, `require` ya es un global nativo; en ESM hay que crearlo
+ * con `createRequire(import.meta.url)` — pero `import.meta.url` no existe en el output CJS
+ * (esbuild lo deja como `undefined` en vez de fallar el build).
+ *
+ * OJO: `typeof require === "function"` NO sirve para distinguir los dos casos — esbuild
+ * reemplaza toda referencia al identificador `require` en su output ESM por su propio shim
+ * (una función real que solo lanza al llamarla, con el mensaje "Dynamic require of ... is not
+ * supported"), así que `typeof require` da `"function"` en AMBOS formatos; solo revienta al
+ * invocarlo. Confirmado en runtime real. En cambio, esbuild no sintetiza `__filename` para
+ * output ESM (solo existe de verdad en CJS), así que sirve como discriminador confiable —
+ * y como el operador ternario nunca evalúa la rama no tomada, el `require` bare de la rama CJS
+ * (sea lo que sea que esbuild lo reescriba a nivel sintáctico en el output ESM) nunca se
+ * invoca ahí, así que es inofensivo.
+ */
+declare const __filename: string | undefined;
+declare const require: NodeJS.Require;
+const nodeRequire: NodeJS.Require = typeof __filename !== "undefined" ? require : createRequire(import.meta.url);
+
+interface PdfParseResult {
+  text: string;
+  numpages: number;
+}
+const pdfParse = nodeRequire("pdf-parse/lib/pdf-parse.js") as (buffer: Buffer) => Promise<PdfParseResult>;
 
 /**
  * Herramientas de adjuntos. El backend no expone tokens de descarga ni URLs firmadas: un
@@ -97,17 +132,12 @@ export function registerAttachmentTools(server: McpServer): void {
 
       try {
         if (ext === "pdf") {
-          const parser = new PDFParse({ data: buffer });
-          try {
-            const result = await parser.getText();
-            const text: TextContent = {
-              type: "text",
-              text: `[${fileName}, ${result.total} página(s)]\n\n${result.text}`,
-            };
-            return { content: [text] };
-          } finally {
-            await parser.destroy();
-          }
+          const result = await pdfParse(buffer);
+          const text: TextContent = {
+            type: "text",
+            text: `[${fileName}, ${result.numpages} página(s)]\n\n${result.text}`,
+          };
+          return { content: [text] };
         }
 
         if (ext === "docx") {

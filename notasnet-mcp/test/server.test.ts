@@ -1,7 +1,15 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+
+const FIXTURES_DIR = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
+// PDF real (generado con `cupsfilter` a partir de texto plano) — contenido genérico, sin datos
+// personales. Sirve para probar la extracción real vía pdf-parse, no solo el manejo de errores.
+const SAMPLE_PDF = readFileSync(join(FIXTURES_DIR, "sample.pdf"));
 
 /**
  * Mockea `globalThis.fetch` ANTES de importar `../src/server.js` (que importa `../src/session.js`,
@@ -53,6 +61,9 @@ const fetchMock = vi.fn(async (input: string | URL | Request) => {
   }
   if (url.includes("cole/comunica/archivo_ejemplo.xyz")) {
     return new Response("contenido sin formato soportado", { status: 200 });
+  }
+  if (url.includes("cole/comunica/documento_ejemplo.pdf")) {
+    return new Response(SAMPLE_PDF, { status: 200, headers: { "content-type": "application/pdf" } });
   }
   return jsonResponse({}, 404);
 });
@@ -156,6 +167,19 @@ describe("notasnet-mcp server", () => {
     expect(block.type).toBe("image");
     expect(block.mimeType).toBe("image/png");
     expect(block.data).toBe(TINY_PNG_BASE64);
+  });
+
+  it("notasnet_get_attachment_content extracts real text from a PDF via pdf-parse", async () => {
+    const client = await connectedClient();
+    const result = (await client.callTool({
+      name: "notasnet_get_attachment_content",
+      arguments: { fileName: "documento_ejemplo.pdf", path: "cole/comunica/documento_ejemplo.pdf" },
+    })) as CallToolResult;
+
+    expect(result.isError).toBeFalsy();
+    const text = (result.content[0] as { type: "text"; text: string }).text;
+    expect(text).toMatch(/documento_ejemplo\.pdf/);
+    expect(text).toMatch(/Documento de prueba/);
   });
 
   it("notasnet_get_attachment_content returns a plain-text notice for an unsupported extension", async () => {

@@ -17,10 +17,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "build:mcpb-server": "tsup --config tsup.mcpb.config.ts",
-    "build:mcpb-vendor": "node scripts/vendor-mcpb-deps.mjs",
     "mcpb:validate": "mcpb validate mcpb/manifest.json",
     "mcpb:pack": "mcpb pack mcpb dist/notasnet-mcp.mcpb",
-    "build:mcpb": "npm run build:mcpb-server && npm run build:mcpb-vendor && npm run mcpb:validate && npm run mcpb:pack"
+    "build:mcpb": "npm run build:mcpb-server && npm run mcpb:validate && npm run mcpb:pack"
   },
   "keywords": [
     "notasnet",
@@ -40,7 +39,7 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "mammoth": "^1.12.2",
     "notasnet-client": "file:../notasnet-client",
-    "pdf-parse": "^2.4.5",
+    "pdf-parse": "^1.1.1",
     "zod": "^3.24.1"
   },
   "packageManager": "npm@11.3.0"

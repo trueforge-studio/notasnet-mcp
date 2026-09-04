@@ -18,16 +18,15 @@ import { defineConfig } from "tsup";
  * runtime, así que el código de `mammoth` funciona tal cual. `src/index.ts` no usa top-level
  * await (todo el arranque async vive dentro de `main()`), así que el output CJS es válido.
  *
- * `pdf-parse` queda EXTERNAL a propósito (no se bundlea): envuelve `pdfjs-dist`, que trae
- * rutas de código para renderizado por canvas (`getScreenshot`/`getImage`) que referencian
- * globals de navegador (`DOMMatrix`, `ImageData`, `Path2D`) — código que ni siquiera usamos
- * (solo se llama `getText()`), pero que esbuild igual bundlea al no poder hacer tree-shaking
- * limpio de un paquete CJS con ese nivel de detección de entorno en runtime. Bundleado,
- * revienta al arrancar con `ReferenceError: DOMMatrix is not defined`. La solución es dejarlo
- * como una dependencia real, resuelta por Node de forma normal — exactamente como ya funciona
- * en dev/test — en vez de pelear con el bundler. Ver `scripts/vendor-mcpb-deps.mjs`, que
- * instala `pdf-parse` (y su árbol de dependencias) dentro de `mcpb/server/node_modules/`
- * como paso separado del build (`npm run build:mcpb-vendor`), antes de empaquetar con `mcpb pack`.
+ * Nota sobre `pdf-parse`: se usa deliberadamente la v1 (no v2 — ver README, sección
+ * "Adjuntos", para por qué: v2 depende de un binario nativo que crasheaba bajo el Node
+ * embebido de Claude Desktop). La v1 tiene su propio landmine para bundlers: su `index.js`
+ * hace `let isDebugMode = !module.parent` e intenta leer un PDF de prueba hardcodeado si es
+ * "true" — comprobado que bajo el bundle de esbuild `module.parent` sigue siendo verdadero
+ * (esbuild preserva la relación real de módulos en su wrapper CJS), así que no se activa. Se
+ * deja esta nota por si una futura actualización de tsup/esbuild cambia ese comportamiento —
+ * si el proceso empaquetado empieza a fallar por un ENOENT de
+ * `test/data/05-versions-space.pdf`, es por esto.
  */
 export default defineConfig({
   entry: { index: "src/index.ts" },
@@ -43,13 +42,6 @@ export default defineConfig({
   platform: "node",
   bundle: true,
   noExternal: [/.*/],
-  external: ["pdf-parse"],
   splitting: false,
   minify: false,
-  // El `external` de tsup no basta acá: con `noExternal: [/.*/]` igual termina bundleando
-  // "pdf-parse" (visto empíricamente — el output seguía incluyendo su código inline). Forzarlo
-  // directo en las opciones de esbuild sí funciona.
-  esbuildOptions(options) {
-    options.external = [...(options.external ?? []), "pdf-parse"];
-  },
 });
