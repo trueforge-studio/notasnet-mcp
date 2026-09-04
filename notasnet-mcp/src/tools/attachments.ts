@@ -1,8 +1,8 @@
-import { createRequire } from "node:module";
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult, ImageContent, TextContent } from "@modelcontextprotocol/sdk/types.js";
 import { buildAttachmentUrl, downloadAttachment } from "notasnet-client";
+import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import * as mammoth from "mammoth";
 import { client, getAuthHeaders } from "../session.js";
 import { errorResult, formatError, runTool } from "../toolHelper.js";
@@ -10,37 +10,25 @@ import { errorResult, formatError, runTool } from "../toolHelper.js";
 /**
  * `pdf-parse@1`'s propio `index.js` hace `let isDebugMode = !module.parent` para decidir si
  * corre un auto-test que lee un PDF de ejemplo hardcodeado del paquete (`test/data/...pdf`).
- * Confirmado en runtime real (no solo bajo Vitest): con cualquier `import` ESM — o bundleado,
- * da lo mismo — `module.parent` nunca queda seteado como ese chequeo espera, así que el
- * auto-test SIEMPRE se dispara y revienta con `ENOENT`. `lib/pdf-parse.js` es la implementación
- * real sin ese wrapper — se importa por ahí con `require` para evitarlo del todo. `@types/pdf-parse`
- * no tipa ese subpath, de ahí el tipo manual acá abajo con solo los campos que se usan.
+ * Confirmado en runtime real: con cualquier `import` ESM — o bundleado, da lo mismo —
+ * `module.parent` nunca queda seteado como ese chequeo espera, así que el auto-test SIEMPRE se
+ * dispara y revienta con `ENOENT`. `lib/pdf-parse.js` es la implementación real sin ese
+ * wrapper, así que se importa esa ruta directamente para evitarlo del todo.
  *
- * Este mismo archivo se compila a dos formatos distintos (ver tsup.config.ts vs
- * tsup.mcpb.config.ts): ESM para el build normal (`dist/index.js`) y CJS para el bundle MCPB
- * (`mcpb/server/index.cjs`). En CJS, `require` ya es un global nativo; en ESM hay que crearlo
- * con `createRequire(import.meta.url)` — pero `import.meta.url` no existe en el output CJS
- * (esbuild lo deja como `undefined` en vez de fallar el build).
+ * IMPORTANTE: tiene que ser un `import` estático (como acá), no un `require(...)` dinámico ni
+ * vía variable — esbuild solo bundlea/inlinea llamadas literales a `require`/`import` que
+ * puede analizar en tiempo de build; un `require` obtenido de una variable (ej.
+ * `createRequire(...)`, o `require` reasignado) queda como una llamada real en runtime que
+ * intenta resolver el módulo por el algoritmo normal de Node — y como el bundle MCPB no
+ * incluye ningún `node_modules` real, esa resolución falla con `MODULE_NOT_FOUND` en la
+ * ubicación de instalación real. Confirmado probando el `.mcpb` empaquetado desde un directorio
+ * aislado (sin `node_modules` en ningún directorio padre) — un intento anterior con
+ * `createRequire` pasaba las pruebas locales SOLO porque corría dentro del árbol del proyecto,
+ * donde Node encontraba igual el `node_modules/pdf-parse` real subiendo directorios.
  *
- * OJO: `typeof require === "function"` NO sirve para distinguir los dos casos — esbuild
- * reemplaza toda referencia al identificador `require` en su output ESM por su propio shim
- * (una función real que solo lanza al llamarla, con el mensaje "Dynamic require of ... is not
- * supported"), así que `typeof require` da `"function"` en AMBOS formatos; solo revienta al
- * invocarlo. Confirmado en runtime real. En cambio, esbuild no sintetiza `__filename` para
- * output ESM (solo existe de verdad en CJS), así que sirve como discriminador confiable —
- * y como el operador ternario nunca evalúa la rama no tomada, el `require` bare de la rama CJS
- * (sea lo que sea que esbuild lo reescriba a nivel sintáctico en el output ESM) nunca se
- * invoca ahí, así que es inofensivo.
+ * Ver `src/types/pdf-parse-lib.d.ts` para la declaración de tipos de este subpath (no cubierto
+ * por `@types/pdf-parse`, que solo tipa el paquete raíz).
  */
-declare const __filename: string | undefined;
-declare const require: NodeJS.Require;
-const nodeRequire: NodeJS.Require = typeof __filename !== "undefined" ? require : createRequire(import.meta.url);
-
-interface PdfParseResult {
-  text: string;
-  numpages: number;
-}
-const pdfParse = nodeRequire("pdf-parse/lib/pdf-parse.js") as (buffer: Buffer) => Promise<PdfParseResult>;
 
 /**
  * Herramientas de adjuntos. El backend no expone tokens de descarga ni URLs firmadas: un
