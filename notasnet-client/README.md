@@ -222,6 +222,9 @@ Notas importantes:
 - `signIn` **no** pasa por `getAuthHeaders` — es la operación que establece la sesión, no una
   que la consume. El `apiKey` (la clave fija de la app) se pasa explícitamente como segundo
   argumento.
+- `usuario` se envía tal cual, sin validar ni normalizar formato de RUT — el `"11.111.111-1"`
+  del ejemplo es solo un placeholder; usa el mismo formato (con o sin puntos y guion) con el que
+  inicias sesión normalmente en el portal de tu colegio.
 - `SignInResult.sessionCookie` puede venir `null` si el backend no manda `Set-Cookie` — no se
   observó ese caso en las pruebas hechas, pero el tipo lo contempla.
 - No confirmado: si el valor de `apikey` es el mismo para todos los colegios de syscol.com o

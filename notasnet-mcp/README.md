@@ -271,6 +271,11 @@ posteriores del servidor no piden login de nuevo.
       }
 ```
 
+`NOTASNET_USUARIO` (y el parámetro `usuario` de `notasnet_login`) se envían tal cual al backend,
+sin validar ni normalizar formato — el `11.111.111-1` de arriba es solo un placeholder ilustrativo.
+Usa el mismo formato de RUT/usuario con el que inicias sesión normalmente en Notasnet (con o sin
+puntos y guion, según lo que acepte tu colegio).
+
 **Advertencia**: poner la contraseña real en este archivo de configuración significa que queda
 en texto plano en disco (el archivo de configuración del cliente MCP no está cifrado). Preferir
 usar `notasnet_login` de forma interactiva desde el cliente MCP la primera vez, y dejar que la
