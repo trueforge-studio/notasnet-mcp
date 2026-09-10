@@ -18,7 +18,7 @@ Todos los ejemplos usan placeholders evidentemente ficticios.
 ## Instalación / uso
 
 ```ts
-import { NotasnetClient } from "notasnet-client";
+import { NotasnetClient } from "@trueforge-studio/notasnet-client";
 
 const client = new NotasnetClient({
   baseUrl: "https://syscol.com/notasnet", // default
@@ -196,8 +196,8 @@ Lo confirmado:
 Uso:
 
 ```ts
-import { NotasnetClient, formatCookieHeader } from "notasnet-client";
-import type { SessionCookie } from "notasnet-client";
+import { NotasnetClient, formatCookieHeader } from "@trueforge-studio/notasnet-client";
+import type { SessionCookie } from "@trueforge-studio/notasnet-client";
 
 // Obtener una vez inspeccionando el tráfico de red de
 // https://syscol.com/notasnet/login?colegio=<slug> (header `apikey` en cualquier petición).

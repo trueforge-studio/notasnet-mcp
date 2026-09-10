@@ -219,15 +219,33 @@ incorrecto fabricar o adivinar uno.
 ## Configurar como servidor MCP
 
 Ejemplo de entrada para la configuración de un cliente MCP (Claude Desktop
-`claude_desktop_config.json`, o el equivalente de configuración de servidores MCP de Claude
-Code):
+`claude_desktop_config.json`, el equivalente de Claude Code, o el `config.toml` de Codex),
+usando el paquete publicado en npm (`@trueforge-studio/notasnet-mcp`):
+
+```json
+{
+  "mcpServers": {
+    "notasnet": {
+      "command": "npx",
+      "args": ["-y", "@trueforge-studio/notasnet-mcp"],
+      "env": {
+        "NOTASNET_COLEGIO": "slug-del-colegio",
+        "NOTASNET_APIKEY": "valor-fijo-obtenido-del-bundle-del-frontend"
+      }
+    }
+  }
+}
+```
+
+También se puede correr desde un checkout local del repo (útil en desarrollo), apuntando
+directo al build:
 
 ```json
 {
   "mcpServers": {
     "notasnet": {
       "command": "node",
-      "args": ["/ruta/absoluta/a/notasnet-mcp/dist/index.js"],
+      "args": ["/ruta/absoluta/a/notasnet-mcp/notasnet-mcp/dist/index.js"],
       "env": {
         "NOTASNET_COLEGIO": "slug-del-colegio",
         "NOTASNET_APIKEY": "valor-fijo-obtenido-del-bundle-del-frontend"

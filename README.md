@@ -14,10 +14,17 @@ installation, configuration, and the full list of available tools/methods.
 Neither package is affiliated with or endorsed by Notasnet/Syscol — this is a
 reverse-engineered client built from observed API traffic.
 
-## Status
+## Installation
 
-Not yet published to npm. Once published, install instructions will live in
-each package's README.
+Both packages are published on npm under the `@trueforge-studio` scope:
+
+```bash
+npm install @trueforge-studio/notasnet-client   # library
+npm install -g @trueforge-studio/notasnet-mcp   # MCP server CLI
+```
+
+See each package's own README for configuration (env vars, MCP host setup) and
+the full list of available tools/methods.
 
 ## License
 
