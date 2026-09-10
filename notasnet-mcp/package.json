@@ -8,7 +8,7 @@
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "notasnet-mcp": "./dist/index.js"
+    "notasnet-mcp": "dist/index.js"
   },
   "files": [
     "dist"
