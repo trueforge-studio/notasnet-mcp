@@ -4,7 +4,7 @@
  * resultado de éxito/error según la convención del SDK (`{ content, isError? }`).
  */
 
-import { NotasnetApiError, NotasnetShapeError } from "notasnet-client";
+import { NotasnetApiError, NotasnetShapeError } from "@trueforge-studio/notasnet-client";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { hasSession } from "./session.js";
 

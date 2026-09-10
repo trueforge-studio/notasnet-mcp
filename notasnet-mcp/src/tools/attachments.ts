@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult, ImageContent, TextContent } from "@modelcontextprotocol/sdk/types.js";
-import { buildAttachmentUrl, downloadAttachment } from "notasnet-client";
+import { buildAttachmentUrl, downloadAttachment } from "@trueforge-studio/notasnet-client";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import * as mammoth from "mammoth";
 import { client, getAuthHeaders } from "../session.js";

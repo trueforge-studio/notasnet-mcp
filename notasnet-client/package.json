@@ -1,6 +1,9 @@
 {
-  "name": "notasnet-client",
+  "name": "@trueforge-studio/notasnet-client",
   "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "TypeScript client library for the Notasnet school portal API (syscol.com/notasnet). API access layer only: types, HTTP client, endpoint mapping, attachment helpers. No auth flow, no MCP/business logic.",
   "type": "module",
   "main": "./dist/index.cjs",

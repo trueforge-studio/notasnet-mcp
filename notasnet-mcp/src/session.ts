@@ -15,8 +15,8 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { NotasnetClient, formatCookieHeader } from "notasnet-client";
-import type { SessionCookie } from "notasnet-client";
+import { NotasnetClient, formatCookieHeader } from "@trueforge-studio/notasnet-client";
+import type { SessionCookie } from "@trueforge-studio/notasnet-client";
 
 const SESSION_DIR = join(homedir(), ".notasnet-mcp");
 const SESSION_FILE = join(SESSION_DIR, "session.json");

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { CommunicationChannelType } from "notasnet-client";
+import type { CommunicationChannelType } from "@trueforge-studio/notasnet-client";
 import { client } from "../session.js";
 import { runTool } from "../toolHelper.js";
 
