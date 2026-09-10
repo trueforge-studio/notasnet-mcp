@@ -276,6 +276,47 @@ sin validar ni normalizar formato — el `11.111.111-1` de arriba es solo un pla
 Usa el mismo formato de RUT/usuario con el que inicias sesión normalmente en Notasnet (con o sin
 puntos y guion, según lo que acepte tu colegio).
 
+### Codex
+
+[Codex](https://developers.openai.com/codex) (CLI y app de escritorio) trae un comando dedicado
+para registrar servidores MCP, `codex mcp add`, que evita editar TOML a mano:
+
+```bash
+codex mcp add notasnet \
+  --env NOTASNET_COLEGIO=slug-del-colegio \
+  --env NOTASNET_APIKEY=valor-fijo-obtenido-del-bundle-del-frontend \
+  -- npx -y @trueforge-studio/notasnet-mcp
+```
+
+Para auto-login, agrega las dos variables extra:
+
+```bash
+codex mcp add notasnet \
+  --env NOTASNET_COLEGIO=slug-del-colegio \
+  --env NOTASNET_APIKEY=valor-fijo-obtenido-del-bundle-del-frontend \
+  --env NOTASNET_USUARIO=tu-usuario-o-rut \
+  --env NOTASNET_PASSWORD=tu-contraseña \
+  -- npx -y @trueforge-studio/notasnet-mcp
+```
+
+Verifica con `codex mcp list` y elimina con `codex mcp remove notasnet` si necesitas rehacerlo.
+
+Esto escribe el mismo bloque `[mcp_servers.notasnet]` en `~/.codex/config.toml`; si preferís
+editarlo directo en vez de usar el comando, el resultado es equivalente a:
+
+```toml
+[mcp_servers.notasnet]
+command = "npx"
+args = ["-y", "@trueforge-studio/notasnet-mcp"]
+
+[mcp_servers.notasnet.env]
+NOTASNET_COLEGIO = "slug-del-colegio"
+NOTASNET_APIKEY = "valor-fijo-obtenido-del-bundle-del-frontend"
+```
+
+Reinicia Codex (o recarga sus servidores MCP) después de agregar el servidor para que tome el
+cambio.
+
 **Advertencia**: poner la contraseña real en este archivo de configuración significa que queda
 en texto plano en disco (el archivo de configuración del cliente MCP no está cifrado). Preferir
 usar `notasnet_login` de forma interactiva desde el cliente MCP la primera vez, y dejar que la
