@@ -173,6 +173,10 @@ descarga ni URLs firmadas: es un `GET` estático plano).
   `node-ensure`) — exactamente el paquete simple que hace falta para esto.
 - DOCX → texto extraído con [`mammoth`](https://www.npmjs.com/package/mammoth)
   (`extractRawText`).
+- PPTX → texto por slide (`--- Slide N ---`) más las notas del orador si existen, extraído en
+  `src/pptx.ts` abriendo el zip con [`jszip`](https://www.npmjs.com/package/jszip) (JS puro, ya
+  era dependencia de `mammoth`) y leyendo los runs `<a:t>` de `ppt/slides/slideN.xml`. No hay
+  una librería "mammoth para PPTX" mantenida y JS puro, así que se hace a mano.
 - PNG/JPG/JPEG → un content block MCP de tipo `image` (`{ type: "image", data: <base64>,
   mimeType }`) — el SDK de MCP soporta contenido de imagen nativamente, así que esto llega
   "visible" en la respuesta del tool sin pasar por una URL intermedia.
@@ -343,7 +347,7 @@ Esto corre tres pasos (ver `package.json`):
 1. `build:mcpb-server` — un build de `tsup` **separado** (`tsup.mcpb.config.ts`, no el
    `tsup.config.ts` normal) que empaqueta el servidor en un único archivo autocontenido
    `mcpb/server/index.cjs`, con **todas** las dependencias embebidas (`@modelcontextprotocol/sdk`,
-   `zod`, `notasnet-client`, `pdf-parse`, `mammoth`). Es necesario porque un `.mcpb` es un zip
+   `zod`, `notasnet-client`, `pdf-parse`, `mammoth`, `jszip`). Es necesario porque un `.mcpb` es un zip
    que se instala y se mueve a la carpeta de extensiones de Claude Desktop — un `node_modules`
    con el symlink que crea `file:../notasnet-client` no sobreviviría ese traslado, así que en
    vez de copiar `node_modules` se embebe todo en un solo archivo. Formato CJS (no ESM) por el

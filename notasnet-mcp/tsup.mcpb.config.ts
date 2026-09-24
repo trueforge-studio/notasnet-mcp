@@ -6,7 +6,7 @@ import { defineConfig } from "tsup";
  * A diferencia de `tsup.config.ts` (usado para dev/test, donde `notasnet-client` se resuelve
  * vía `node_modules` gracias a la dependencia `file:../notasnet-client`), acá se embeben TODAS
  * las dependencias (`@modelcontextprotocol/sdk`, `zod`, `notasnet-client`, `pdf-parse`,
- * `mammoth`) en un solo archivo. Un `.mcpb` es un zip que se instala y se mueve a otra
+ * `mammoth`, `jszip`) en un solo archivo. Un `.mcpb` es un zip que se instala y se mueve a otra
  * máquina/carpeta — un `node_modules` con un symlink a `../notasnet-client` no sobreviviría
  * ese traslado, así que empaquetar todo en un único archivo autocontenido evita ese problema.
  *

@@ -6,11 +6,32 @@ import { describe, expect, it, vi } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import JSZip from "jszip";
 
 const FIXTURES_DIR = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
 // PDF real (generado con `cupsfilter` a partir de texto plano) — contenido genérico, sin datos
 // personales. Sirve para probar la extracción real vía pdf-parse, no solo el manejo de errores.
 const SAMPLE_PDF = readFileSync(join(FIXTURES_DIR, "sample.pdf"));
+
+/**
+ * PPTX mínimo armado en memoria con jszip: solo las partes que lee `src/pptx.ts` (slides, sus
+ * rels y una notesSlide). Incluye slide10 para verificar orden numérico (no lexicográfico),
+ * entidades XML y que las notas se asocian por rels aunque el número de notesSlide no calce.
+ */
+const slideXml = (paragraphs: string[]) =>
+  `<p:sld xmlns:a="a" xmlns:p="p"><p:cSld><p:spTree>${paragraphs
+    .map((p) => `<a:p><a:r><a:t>${p}</a:t></a:r></a:p>`)
+    .join("")}</p:spTree></p:cSld></p:sld>`;
+const samplePptxZip = new JSZip();
+samplePptxZip.file("ppt/slides/slide1.xml", slideXml(["Reunión de apoderados", "Fecha: 12 &amp; 13 de marzo"]));
+samplePptxZip.file("ppt/slides/slide2.xml", slideXml(["Segunda slide"]));
+samplePptxZip.file("ppt/slides/slide10.xml", slideXml(["Décima slide"]));
+samplePptxZip.file(
+  "ppt/slides/_rels/slide2.xml.rels",
+  '<Relationships><Relationship Id="rId2" Target="../notesSlides/notesSlide7.xml"/></Relationships>',
+);
+samplePptxZip.file("ppt/notesSlides/notesSlide7.xml", slideXml(["Traer libreta", "2"]));
+const SAMPLE_PPTX = await samplePptxZip.generateAsync({ type: "nodebuffer" });
 
 /**
  * `src/session.ts` persiste la sesión en `~/.notasnet-mcp/session.json` (ruta calculada una
@@ -158,6 +179,9 @@ const fetchMock = vi.fn(async (input: string | URL | Request) => {
   if (url.includes("cole/comunica/archivo_ejemplo.xyz")) {
     return new Response("contenido sin formato soportado", { status: 200 });
   }
+  if (url.includes("cole/comunica/presentacion_ejemplo.pptx")) {
+    return new Response(SAMPLE_PPTX, { status: 200 });
+  }
   if (url.includes("cole/comunica/documento_ejemplo.pdf")) {
     return new Response(SAMPLE_PDF, { status: 200, headers: { "content-type": "application/pdf" } });
   }
@@ -277,6 +301,23 @@ describe("notasnet-mcp server", () => {
     const text = (result.content[0] as { type: "text"; text: string }).text;
     expect(text).toMatch(/documento_ejemplo\.pdf/);
     expect(text).toMatch(/Documento de prueba/);
+  });
+
+  it("notasnet_get_attachment_content extracts slide text and speaker notes from a PPTX", async () => {
+    const client = await connectedClient();
+    const result = (await client.callTool({
+      name: "notasnet_get_attachment_content",
+      arguments: { fileName: "presentacion_ejemplo.pptx", path: "cole/comunica/presentacion_ejemplo.pptx" },
+    })) as CallToolResult;
+
+    expect(result.isError).toBeFalsy();
+    const text = (result.content[0] as { type: "text"; text: string }).text;
+    expect(text).toBe(
+      "[presentacion_ejemplo.pptx, 3 slide(s)]\n\n" +
+        "--- Slide 1 ---\nReunión de apoderados\nFecha: 12 & 13 de marzo\n\n" +
+        "--- Slide 2 ---\nSegunda slide\n\nNotas: Traer libreta\n\n" +
+        "--- Slide 10 ---\nDécima slide",
+    );
   });
 
   it("notasnet_get_attachment_content returns a plain-text notice for an unsupported extension", async () => {

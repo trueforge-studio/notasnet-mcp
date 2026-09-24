@@ -4,6 +4,7 @@ import type { CallToolResult, ImageContent, TextContent } from "@modelcontextpro
 import { buildAttachmentUrl, downloadAttachment } from "@trueforge-studio/notasnet-client";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import * as mammoth from "mammoth";
+import { extractPptxSlides, formatPptxSlides } from "../pptx.js";
 import { client, getAuthHeaders } from "../session.js";
 import { errorResult, formatError, runTool } from "../toolHelper.js";
 
@@ -38,7 +39,7 @@ import { errorResult, formatError, runTool } from "../toolHelper.js";
  * `notasnet_get_attachment_url` solo resuelve la URL, sin traer contenido — útil cuando el
  * llamador quiere descargarlo por su cuenta. `notasnet_get_attachment_content` (más abajo) sí
  * trae los bytes y devuelve un content block MCP: un bloque `image` (base64 + mimeType) para
- * imágenes, o texto extraído para PDF/DOCX — el SDK de MCP soporta content blocks de tipo
+ * imágenes, o texto extraído para PDF/DOCX/PPTX — el SDK de MCP soporta content blocks de tipo
  * `image`, así que esto no requiere "descargar y luego avisar la URL", el contenido llega
  * directo en la respuesta del tool.
  *
@@ -88,8 +89,8 @@ export function registerAttachmentTools(server: McpServer): void {
     {
       description:
         "Descarga un adjunto embebido ({FileName, Path}) y devuelve su contenido directamente en la respuesta " +
-        "del tool: texto extraído para PDF y DOCX, o un content block de imagen (base64 + mimeType) para " +
-        "PNG/JPG/JPEG. A diferencia de notasnet_get_attachment_url, esta herramienta sí trae los bytes — usa la " +
+        "del tool: texto extraído para PDF, DOCX y PPTX (por slide, con notas del orador), o un content block " +
+        "de imagen (base64 + mimeType) para PNG/JPG/JPEG. A diferencia de notasnet_get_attachment_url, esta herramienta sí trae los bytes — usa la " +
         "cookie de sesión activa (misma que el resto de las herramientas) para la descarga. Otros formatos " +
         "devuelven un mensaje indicando que no están soportados, en vez de un error.",
       inputSchema: {
@@ -131,6 +132,12 @@ export function registerAttachmentTools(server: McpServer): void {
         if (ext === "docx") {
           const { value } = await mammoth.extractRawText({ buffer });
           const text: TextContent = { type: "text", text: `[${fileName}]\n\n${value}` };
+          return { content: [text] };
+        }
+
+        if (ext === "pptx") {
+          const slides = await extractPptxSlides(buffer);
+          const text: TextContent = { type: "text", text: formatPptxSlides(fileName, slides) };
           return { content: [text] };
         }
 
