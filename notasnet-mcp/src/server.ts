@@ -19,7 +19,7 @@ import { registerAttachmentTools } from "./tools/attachments.js";
 import { registerLoginTools } from "./tools/login.js";
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "notasnet-mcp", version: "0.1.0" });
+  const server = new McpServer({ name: "notasnet-mcp", version: "0.2.0" });
 
   registerLoginTools(server);
   registerStudentTools(server);

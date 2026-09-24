@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "notasnet-mcp",
   "display_name": "Notasnet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local MCP server for the Notasnet school portal (syscol.com/notasnet): agenda, grades, attendance, communications and more, as MCP tools.",
   "long_description": "Wraps the notasnet-client library and exposes its read endpoints (students, agenda, grades, attendance, observations, schedule, folders, account, institutional info) plus login/session tools over stdio. Auth uses Notasnet's real session cookie, captured via a `notasnet_login` tool call or (optionally) automatic login from configured credentials. See this extension's README for the full tool list and how to obtain the required app API key.",
   "author": {
