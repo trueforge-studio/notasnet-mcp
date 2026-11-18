@@ -194,17 +194,25 @@ export const agendaRangeEventSchema = z
   .passthrough();
 export const agendaRangeEventListSchema = z.array(agendaRangeEventSchema);
 
-export const agendaEventDetailSchema = z
+/**
+ * Cuerpo que el backend devuelve (con HTTP 200) cuando el recurso pedido ya no existe o no es
+ * visible para el usuario, ej. `{"error":"Evento no encontrado"}`. Los métodos del cliente lo
+ * convierten en `NotasnetNotFoundError`.
+ */
+export const notFoundBodySchema = z.object({ error: z.string() }).passthrough();
+
+const agendaEventDetailOkSchema = z
   .object({
     idEventData: z.number(),
     NTipo: z.string(),
     Fecha: z.string(),
-    Titulo: z.string(),
-    Detalle: z.string(),
+    Titulo: nullableString,
+    Detalle: nullableString,
     Archivo: nullableAttachments,
-    SubTitulo: z.string(),
+    SubTitulo: nullableString,
   })
   .passthrough();
+export const agendaEventDetailSchema = z.union([agendaEventDetailOkSchema, notFoundBodySchema]);
 
 // --- Comunicaciones ------------------------------------------------------------
 
@@ -216,16 +224,16 @@ export const communicationListItemSchema = z
   .passthrough();
 export const communicationListSchema = z.array(communicationListItemSchema);
 
-export const communicationDetailSchema = z
+const communicationDetailOkSchema = z
   .object({
     TipoCodigo: z.string(),
     Id: z.number(),
     Fecha: z.string(),
     Titulo: nullableString,
-    Detalle: z.string(),
+    Detalle: nullableString,
     Archivo: nullableAttachments,
-    UsRut: z.string(),
-    UsNombre: z.string(),
+    UsRut: nullableString,
+    UsNombre: nullableString,
     ComAlumnos: z.boolean(),
     ComApoderados: z.boolean(),
     ComPadres: z.boolean(),
@@ -235,6 +243,16 @@ export const communicationDetailSchema = z
     Sujeto: z.string(),
   })
   .passthrough();
+
+/**
+ * `GET /comunica/{id}` devuelve `[]` (array vacío) cuando el comunicado no existe o no es
+ * visible para la cuenta — se acepta ese caso y el cliente lo convierte en `NotasnetNotFoundError`.
+ */
+export const communicationDetailSchema = z.union([
+  communicationDetailOkSchema,
+  z.array(z.unknown()).max(0),
+  notFoundBodySchema,
+]);
 
 const channelLastMessageSchema = z
   .object({
@@ -276,9 +294,10 @@ export const communicationNotificationDetailSchema = z
     TipoCodigo: z.string(),
     Id: z.number(),
     Fecha: z.string(),
-    Tipo: z.string(),
-    Titulo: z.string(),
-    Detalle: z.string(),
+    Tipo: nullableString,
+    // Confirmado contra el backend real: puede venir null (y Detalle viene truncado a ~200 chars).
+    Titulo: nullableString,
+    Detalle: nullableString,
     Sujeto: z.string(),
     Archivo: nullableAttachments,
     UsRut: nullableString,
@@ -286,7 +305,7 @@ export const communicationNotificationDetailSchema = z
     Comentario: z.number(),
     Unread: z.number(),
     Alumno: nullableNumber,
-    SujetoCodigo: z.string(),
+    SujetoCodigo: nullableString,
   })
   .passthrough();
 
@@ -314,18 +333,19 @@ const notificationEventInnerDetailSchema = z
     TipoN: z.string(),
     Id: z.number(),
     Fecha: z.string(),
-    Titulo: z.string(),
-    Detalle: z.string(),
+    Titulo: nullableString,
+    Detalle: nullableString,
     Archivo: nullableAttachments,
-    SubTitulo: z.string(),
-    Color: z.number(),
-    ColPath: z.string(),
+    SubTitulo: nullableString,
+    Color: nullableNumber,
+    ColPath: nullableString,
   })
   .passthrough();
 
 export const notificationEventDetailSchema = z
   .object({
-    Detalle: notificationEventInnerDetailSchema,
+    // `{"error":"Detalle no encontrado"}` cuando el contenido cambió o ya no es visible ("Notificación Obsoleta" en la web).
+    Detalle: z.union([notificationEventInnerDetailSchema, notFoundBodySchema]),
     Visto: z.number(),
     Sujeto: z.string(),
   })

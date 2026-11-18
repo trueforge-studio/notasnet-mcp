@@ -72,6 +72,7 @@ sentido envolver una llamada garantizada a fallar.
 | `notasnet_get_communication_notification` | `getCommunicationNotification` | Detalle de una notificación de comunicación. |
 | `notasnet_get_latest_notifications` | `getLatestNotifications` | Últimas N notificaciones. |
 | `notasnet_get_notification_event_detail` | `getNotificationEventDetail` | Detalle de notificación ligada a un evento de agenda. |
+| `notasnet_get_notification_content` | `getNotificationContent` | Título, texto completo y adjuntos de una notificación (por `idNotifica` o `Sujeto` "ag:<id>"), con fallback a `/comunica/{id}`, `/agenda/evento/{id}` y búsqueda en canales. `complete:false` = el backend ya no expone el contenido (web: "Notificación Obsoleta"). |
 | `notasnet_mark_notification_seen` | `markNotificationSeen` | Marca una notificación como vista (`subject` = campo `Sujeto`, ej. `"ag:1234567"`). |
 | `notasnet_get_unread_count` | `getUnreadCount` | Contador total de no leídas. |
 | `notasnet_get_menu_notification_counts` | `getMenuNotificationCounts` | Contadores por ítem de menú. |

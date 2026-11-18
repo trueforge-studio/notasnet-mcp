@@ -64,6 +64,24 @@ export class NotasnetShapeError extends Error {
 }
 
 /**
+ * El backend respondió 200 pero indicando que el recurso no existe o no es visible: cuerpo
+ * `{"error":"... no encontrado"}` (agenda/evento, notifica/evento) o `[]` (comunica/{id}).
+ * En la web real esto se ve como "Notificación Obsoleta" (el contenido cambió o fue eliminado).
+ */
+export class NotasnetNotFoundError extends Error {
+  readonly url: string;
+  /** Cuerpo ya parseado tal como lo devolvió el backend. */
+  readonly body: unknown;
+
+  constructor(params: { message: string; url: string; body: unknown }) {
+    super(params.message);
+    this.name = "NotasnetNotFoundError";
+    this.url = params.url;
+    this.body = params.body;
+  }
+}
+
+/**
  * Lanzado por métodos que aún no están implementados a propósito (ej. login real).
  * Ver README para el detalle de por qué no se implementan todavía.
  */

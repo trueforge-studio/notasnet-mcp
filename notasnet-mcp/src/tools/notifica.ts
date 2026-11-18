@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { client } from "../session.js";
-import { runTool } from "../toolHelper.js";
+import { errorResult, runTool } from "../toolHelper.js";
 
 export function registerNotificaTools(server: McpServer): void {
   server.registerTool(
@@ -20,6 +20,28 @@ export function registerNotificaTools(server: McpServer): void {
       inputSchema: { notificationId: z.number().describe("Mapea a noti.") },
     },
     async ({ notificationId }) => runTool(true, () => client.getNotificationEventDetail(notificationId)),
+  );
+
+  server.registerTool(
+    "notasnet_get_notification_content",
+    {
+      description:
+        "Título, texto completo (HTML) y adjuntos de una notificación, dado su idNotifica y/o su Sujeto " +
+        '("ag:<id>"). Prueba en orden GET /notifica/evento (la ruta que usa la web), GET /comunica/notificacion, ' +
+        "GET /comunica/{id} y /agenda/evento/{id} con el id del Sujeto, y por último busca en los canales un " +
+        "comunicado cercano en fecha cuyo texto coincida. Los adjuntos de `archivos` se leen con " +
+        "notasnet_get_attachment_content (FileName + Path). Si `complete` es false, el backend ya no expone el " +
+        "contenido (la web muestra \"Notificación Obsoleta\") y solo hay una vista previa de ~200 caracteres. " +
+        "No marca la notificación como vista.",
+      inputSchema: {
+        notificationId: z.number().optional().describe("idNotifica (de notasnet_get_latest_notifications)."),
+        subject: z.string().optional().describe('Sujeto, ej. "ag:2205484". Úsalo solo si no tienes idNotifica.'),
+      },
+    },
+    async ({ notificationId, subject }) =>
+      notificationId === undefined && !subject
+        ? errorResult("Indica notificationId o subject.")
+        : runTool(true, () => client.getNotificationContent({ notificationId, subject })),
   );
 
   server.registerTool(

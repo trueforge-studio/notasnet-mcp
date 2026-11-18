@@ -20,8 +20,10 @@
  */
 
 import { extractSessionCookie } from "./auth.js";
-import { NotasnetApiError, NotasnetShapeError, NotImplementedError } from "./errors.js";
+import { NotasnetApiError, NotasnetNotFoundError, NotasnetShapeError, NotImplementedError } from "./errors.js";
 import type {
+  EmbeddedAttachment,
+  NotificationContent,
   AccountInstallment,
   Comuna,
   RecoverPasswordResponse,
@@ -365,7 +367,8 @@ export class NotasnetClient {
   /** `GET /agenda/evento/{id}` — detalle de un evento puntual, incluyendo adjuntos. */
   async getAgendaEventDetail(eventId: number): Promise<AgendaEventDetail> {
     const url = this.buildUrl(`/agenda/evento/${eventId}`);
-    return this.request("GET", url, agendaEventDetailSchema);
+    const body = await this.request<AgendaEventDetail | { error: string }>("GET", url, agendaEventDetailSchema);
+    return this.unwrapNotFound(url, body);
   }
 
   // =======================================================================
@@ -385,7 +388,12 @@ export class NotasnetClient {
   /** `GET /comunica/{id}` — detalle de un comunicado. */
   async getCommunication(id: number): Promise<CommunicationDetail> {
     const url = this.buildUrl(`/comunica/${id}`);
-    return this.request("GET", url, communicationDetailSchema);
+    const body = await this.request<CommunicationDetail | unknown[] | { error: string }>(
+      "GET",
+      url,
+      communicationDetailSchema,
+    );
+    return this.unwrapNotFound(url, body);
   }
 
   /** `GET /comunica/contactos?buscar=` — canales de comunicación disponibles con contador de no leídos. */
@@ -426,7 +434,192 @@ export class NotasnetClient {
   /** `GET /notifica/evento?noti=` — detalle de una notificación ligada a un evento de agenda. */
   async getNotificationEventDetail(notificationId: number): Promise<NotificationEventDetail> {
     const url = this.buildUrl("/notifica/evento", { noti: notificationId });
-    return this.request("GET", url, notificationEventDetailSchema);
+    const body = await this.request<{ Detalle: NotificationEventDetail["Detalle"] | { error: string } }>(
+      "GET",
+      url,
+      notificationEventDetailSchema,
+    );
+    // La web muestra "Notificación Obsoleta" cuando Detalle trae `error` (contenido cambiado/eliminado).
+    this.unwrapNotFound(url, body.Detalle);
+    return body as NotificationEventDetail;
+  }
+
+  /** Convierte los cuerpos "no encontrado" del backend (`{error}` o `[]`) en `NotasnetNotFoundError`. */
+  private unwrapNotFound<T>(url: string, body: T | unknown[] | { error: string }): T {
+    if (Array.isArray(body)) {
+      throw new NotasnetNotFoundError({ message: `GET ${url} devolvió una lista vacía (recurso no encontrado)`, url, body });
+    }
+    if (body && typeof body === "object" && "error" in body && typeof (body as { error: unknown }).error === "string") {
+      throw new NotasnetNotFoundError({ message: `GET ${url}: ${(body as { error: string }).error}`, url, body });
+    }
+    return body as T;
+  }
+
+  /**
+   * Resuelve el contenido completo (título, texto HTML y adjuntos) de una notificación, probando en
+   * orden las rutas que existen en el backend (ver `NotificationContent.source`):
+   *
+   * 1. `GET /notifica/evento?noti=` — la que usa la web (`modals/noti-det.html`). Es la ÚNICA ruta que
+   *    la web usa para abrir notificaciones de tipo "ag"; si falla la web muestra "Notificación Obsoleta".
+   * 2. `GET /comunica/notificacion/{id}` — solo vista previa (~200 chars, sin adjuntos); aporta el `Sujeto`.
+   * 3. `GET /comunica/{idSujeto}` y `GET /agenda/evento/{idSujeto}` con el id del `Sujeto` "ag:<id>".
+   * 4. Búsqueda en los canales de comunicados (`/comunica?tipo=&id=`) de un comunicado publicado casi a
+   *    la misma hora cuyo texto parta igual que la vista previa (el aviso pudo re-publicarse con otro id).
+   *
+   * Nunca lanza por "no encontrado": si nada devuelve el contenido completo, retorna la vista previa con
+   * `complete: false` y una `note` explicándolo. Errores de red/HTTP/forma sí se propagan.
+   */
+  async getNotificationContent(ref: { notificationId?: number; subject?: string }): Promise<NotificationContent> {
+    const attempts: string[] = [];
+    let notificationId = ref.notificationId ?? null;
+    let subject = ref.subject ?? null;
+    let titulo: string | null = null;
+    let fecha: string | null = null;
+    let preview: string | null = null;
+
+    const done = (
+      source: NotificationContent["source"],
+      complete: boolean,
+      p: { titulo: string | null; fecha: string | null; detalle: string | null; archivos: EmbeddedAttachment[] | null; resolvedId: number | null },
+      note?: string,
+    ): NotificationContent => ({
+      complete,
+      source,
+      notificationId,
+      subject,
+      titulo: p.titulo ?? titulo,
+      fecha: p.fecha ?? fecha,
+      detalleHtml: p.detalle,
+      archivos: p.archivos ?? [],
+      resolvedId: p.resolvedId,
+      note: note ?? `Contenido completo obtenido vía ${source}.`,
+    });
+
+    const tryNotFound = async <T>(label: string, fn: () => Promise<T>): Promise<T | null> => {
+      try {
+        return await fn();
+      } catch (err) {
+        if (err instanceof NotasnetNotFoundError) {
+          attempts.push(`${label}: no encontrado`);
+          return null;
+        }
+        throw err;
+      }
+    };
+
+    if (notificationId !== null) {
+      const ev = await tryNotFound("GET /notifica/evento", () => this.getNotificationEventDetail(notificationId!));
+      if (ev) {
+        const d = ev.Detalle;
+        subject = ev.Sujeto;
+        return done("notifica/evento", true, {
+          titulo: d.Titulo,
+          fecha: d.Fecha,
+          detalle: d.Detalle,
+          archivos: d.Archivo,
+          resolvedId: d.Id,
+        });
+      }
+      const prev = await tryNotFound("GET /comunica/notificacion", () => this.getCommunicationNotification(notificationId!));
+      if (prev) {
+        subject = subject ?? prev.Sujeto;
+        titulo = prev.Titulo;
+        fecha = prev.Fecha;
+        preview = prev.Detalle;
+        if (prev.Archivo?.length) {
+          return done("notification-preview", false, {
+            titulo: prev.Titulo,
+            fecha: prev.Fecha,
+            detalle: prev.Detalle,
+            archivos: prev.Archivo,
+            resolvedId: null,
+          }, "La vista previa trae adjuntos, pero el texto está truncado.");
+        }
+      }
+      if (titulo === null) {
+        // Titulo suele venir null en comunica/notificacion; notifica/latest sí lo trae.
+        const latest = await this.getLatestNotifications(100);
+        const hit = latest.find((n) => n.idNotifica === notificationId);
+        if (hit) {
+          titulo = hit.Titulo;
+          fecha = fecha ?? hit.Fecha;
+          preview = preview ?? hit.Detalle;
+          subject = subject ?? hit.Sujeto;
+        }
+      }
+    }
+
+    const idFromSubject = subject ? Number(subject.split(":")[1]) : NaN;
+    if (subject?.startsWith("ag:") && Number.isFinite(idFromSubject)) {
+      const com = await tryNotFound(`GET /comunica/${idFromSubject}`, () => this.getCommunication(idFromSubject));
+      if (com) {
+        return done("comunica", true, { titulo: com.Titulo, fecha: com.Fecha, detalle: com.Detalle, archivos: com.Archivo, resolvedId: com.Id });
+      }
+      const evt = await tryNotFound(`GET /agenda/evento/${idFromSubject}`, () => this.getAgendaEventDetail(idFromSubject));
+      if (evt) {
+        return done("agenda/evento", true, { titulo: evt.Titulo, fecha: evt.Fecha, detalle: evt.Detalle, archivos: evt.Archivo, resolvedId: evt.idEventData });
+      }
+    }
+
+    if (fecha && preview) {
+      const found = await this.findCommunicationByPreview(fecha, preview, Number.isFinite(idFromSubject) ? idFromSubject : null);
+      attempts.push(found ? "búsqueda en canales: coincidencia encontrada" : "búsqueda en canales: sin coincidencias");
+      if (found) {
+        return done("comunica-channel-search", true, {
+          titulo: found.Titulo,
+          fecha: found.Fecha,
+          detalle: found.Detalle,
+          archivos: found.Archivo,
+          resolvedId: found.Id,
+        }, `El id original (${subject}) ya no existe; el contenido salió de un comunicado publicado casi a la misma hora cuyo texto coincide con la vista previa.`);
+      }
+    }
+
+    return done("notification-preview", false, { titulo, fecha, detalle: preview, archivos: null, resolvedId: null },
+      `No hay forma de obtener el contenido completo: ${attempts.join("; ") || "sin intentos"}. ` +
+        `La web real muestra "Notificación Obsoleta" en este caso (el evento fue editado o eliminado). ` +
+        `Solo queda la vista previa truncada (~200 chars) y sin adjuntos.`);
+  }
+
+  /** Busca en todos los canales un comunicado cercano en fecha cuyo texto empiece como `preview`. */
+  private async findCommunicationByPreview(
+    notificationDate: string,
+    preview: string,
+    excludeId: number | null,
+  ): Promise<CommunicationDetail | null> {
+    // Compara solo letras/dígitos: la vista previa del backend ya viene sin HTML ni espacios fiables.
+    const normalize = (html: string) =>
+      html
+        .replace(/<[^>]*>/g, "")
+        .replace(/&[#a-z0-9]+;/gi, "")
+        .replace(/[^\p{L}\p{N}]/gu, "")
+        .toLowerCase();
+    const wanted = normalize(preview);
+    if (wanted.length < 20) return null;
+    const needle = wanted.slice(0, 120);
+    const target = Date.parse(notificationDate);
+    if (Number.isNaN(target)) return null;
+
+    const channels = await this.listCommunicationChannels();
+    const candidates = new Map<number, number>();
+    for (const ch of channels) {
+      if (ch.Tipo !== "Colegio" && ch.Tipo !== "Curso" && ch.Tipo !== "Subsector") continue;
+      const items = await this.listCommunications({ channelType: ch.Tipo, channelId: ch.Id });
+      for (const it of items) {
+        const diff = Math.abs(Date.parse(it.Fecha) - target);
+        if (diff <= 36 * 3600 * 1000 && it.idEventData !== excludeId) candidates.set(it.idEventData, diff);
+      }
+    }
+    const ordered = [...candidates.entries()].sort((a, b) => a[1] - b[1]).slice(0, 10);
+    for (const [id] of ordered) {
+      try {
+        const detail = await this.getCommunication(id);
+        if (detail.Detalle && normalize(detail.Detalle).startsWith(needle)) return detail;
+      } catch (err) {
+        if (!(err instanceof NotasnetNotFoundError)) throw err;
+      }
+    }
+    return null;
   }
 
   /**

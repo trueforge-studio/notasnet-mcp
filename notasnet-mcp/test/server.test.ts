@@ -220,6 +220,7 @@ describe("notasnet-mcp server", () => {
     expect(names).toContain("notasnet_get_grades");
     expect(names).toContain("notasnet_get_agenda_by_date");
     expect(names).toContain("notasnet_mark_notification_seen");
+    expect(names).toContain("notasnet_get_notification_content");
     expect(names).toContain("notasnet_get_attachment_url");
     expect(names).toContain("notasnet_get_attachment_content");
     expect(names).toContain("notasnet_list_regions");

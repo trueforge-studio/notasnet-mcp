@@ -324,10 +324,10 @@ export interface AgendaEventDetail {
   idEventData: number;
   NTipo: string;
   Fecha: IsoDateTimeString;
-  Titulo: string;
-  Detalle: string;
+  Titulo: string | null;
+  Detalle: string | null;
   Archivo: EmbeddedAttachment[] | null;
-  SubTitulo: string;
+  SubTitulo: string | null;
   /** no confirmado con datos reales, solo se vio null en el HAR */
   NotiVista: unknown | null;
 }
@@ -351,12 +351,12 @@ export interface CommunicationDetail {
   Fecha: IsoDateTimeString;
   Titulo: string | null;
   /** Cuerpo en HTML. */
-  Detalle: string;
+  Detalle: string | null;
   Archivo: EmbeddedAttachment[] | null;
-  /** RUT del autor/profesor emisor. */
-  UsRut: RutString;
-  /** Nombre del autor/profesor emisor. */
-  UsNombre: string;
+  /** RUT del autor/profesor emisor (null en comunicados generados por el sistema). */
+  UsRut: RutString | null;
+  /** Nombre del autor/profesor emisor (null en comunicados generados por el sistema). */
+  UsNombre: string | null;
   ComAlumnos: boolean;
   ComApoderados: boolean;
   ComPadres: boolean;
@@ -411,9 +411,11 @@ export interface CommunicationNotificationDetail {
   Id: number;
   Fecha: IsoDateTimeString;
   /** Tipo legible, ej. "Evento", "Comunicación", "Inasistencia" (no es un enum cerrado confirmado). */
-  Tipo: string;
-  Titulo: string;
-  Detalle: string;
+  Tipo: string | null;
+  /** Puede venir null (confirmado con avisos de tipo "ag"). */
+  Titulo: string | null;
+  /** Vista previa truncada a ~200 caracteres, sin HTML; puede venir null. NO es el cuerpo completo. */
+  Detalle: string | null;
   /** Identificador tipo "<prefijo>:<id>" del registro referenciado, ej. "ag:1234567" (ejemplo). */
   Sujeto: string;
   Archivo: EmbeddedAttachment[] | null;
@@ -426,7 +428,7 @@ export interface CommunicationNotificationDetail {
   /** id del alumno al que aplica, o null si es transversal (ej. comunicado de colegio). */
   Alumno: number | null;
   /** Prefijo del campo `Sujeto` aislado, ej. "ag", "ina" (código corto de tipo de sujeto). */
-  SujetoCodigo: string;
+  SujetoCodigo: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -457,12 +459,12 @@ export interface NotificationEventInnerDetail {
   TipoN: string;
   Id: number;
   Fecha: IsoDateTimeString;
-  Titulo: string;
-  Detalle: string;
+  Titulo: string | null;
+  Detalle: string | null;
   Archivo: EmbeddedAttachment[] | null;
-  SubTitulo: string;
-  Color: number;
-  ColPath: string;
+  SubTitulo: string | null;
+  Color: number | null;
+  ColPath: string | null;
   /** no confirmado con datos reales, solo se vio null en el HAR */
   UsRut: RutString | null;
   /** no confirmado con datos reales, solo se vio null en el HAR */
@@ -480,6 +482,37 @@ export interface NotificationEventDetail {
   Detalle: NotificationEventInnerDetail;
   Visto: number;
   Sujeto: string;
+}
+
+/** De dónde salió el contenido devuelto por `NotasnetClient.getNotificationContent`. */
+export type NotificationContentSource =
+  | "notifica/evento"
+  | "comunica"
+  | "agenda/evento"
+  | "comunica-channel-search"
+  | "notification-preview";
+
+/**
+ * Contenido de una notificación resuelto por `NotasnetClient.getNotificationContent`.
+ * Si `complete` es false, `detalleHtml` es solo la vista previa truncada (~200 chars) y
+ * `archivos` está vacío: el backend ya no expone el contenido completo.
+ */
+export interface NotificationContent {
+  complete: boolean;
+  source: NotificationContentSource;
+  notificationId: number | null;
+  /** "<prefijo>:<id>" de la notificación, ej. "ag:2205484". */
+  subject: string | null;
+  titulo: string | null;
+  fecha: IsoDateTimeString | null;
+  /** HTML completo si `complete`, o texto truncado de vista previa en caso contrario. */
+  detalleHtml: string | null;
+  /** Adjuntos listos para `notasnet_get_attachment_content` (FileName + Path). */
+  archivos: EmbeddedAttachment[];
+  /** Id del comunicado/evento del que salió el contenido completo (puede diferir del id de `subject`). */
+  resolvedId: number | null;
+  /** Explicación humana de qué se intentó, sobre todo cuando `complete` es false. */
+  note: string;
 }
 
 /** Respuesta de `GET /notisinleer`. */

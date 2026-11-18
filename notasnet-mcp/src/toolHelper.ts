@@ -4,7 +4,7 @@
  * resultado de éxito/error según la convención del SDK (`{ content, isError? }`).
  */
 
-import { NotasnetApiError, NotasnetShapeError } from "@trueforge-studio/notasnet-client";
+import { NotasnetApiError, NotasnetNotFoundError, NotasnetShapeError } from "@trueforge-studio/notasnet-client";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { hasSession } from "./session.js";
 
@@ -22,6 +22,12 @@ export function formatError(err: unknown): string {
     return (
       `Notasnet API respondió con error (status ${err.status}) para ${err.method} ${err.url}.\n` +
       `${err.message}${bodyNote}`
+    );
+  }
+  if (err instanceof NotasnetNotFoundError) {
+    return (
+      `No encontrado: ${err.message}. Si el id viene de una notificación (Sujeto "ag:<id>"), usa ` +
+      "notasnet_get_notification_content con el idNotifica: prueba todas las rutas conocidas."
     );
   }
   if (err instanceof NotasnetShapeError) {
